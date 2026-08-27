@@ -2,6 +2,7 @@
 
 import { Canvas } from '@react-three/fiber';
 import type { SceneKey } from '@/lib/content';
+import { PALETTES } from '@/lib/palettes';
 import { SCENES } from './scenes';
 import { Rig } from './scenes/shared';
 
@@ -15,6 +16,8 @@ export interface EventCanvasProps {
 
 export default function EventCanvas({ scene, active, reduced, tier }: EventCanvasProps) {
   const { Component, era, dist, y = 0 } = SCENES[scene];
+  // One palette per event, shared by the object and its lighting rig.
+  const palette = PALETTES[scene];
 
   return (
     <Canvas
@@ -30,8 +33,8 @@ export default function EventCanvas({ scene, active, reduced, tier }: EventCanva
       }}
       style={{ pointerEvents: 'none' }}
     >
-      <Rig era={era} />
-      <Component tier={tier} />
+      <Rig era={era} palette={palette} />
+      <Component tier={tier} p={palette} />
     </Canvas>
   );
 }

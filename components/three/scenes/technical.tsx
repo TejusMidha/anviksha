@@ -1,32 +1,58 @@
 'use client';
 
-/* ERA 01 — Technical. Phosphor green, hard edges, flat shading, wireframe. */
+/* ERA 01 — TECHNICAL.
+   Brochure divider: deep violet base, neon circuit-trace pattern.
+   Each object carries its own poster palette (lib/palettes.ts) and one
+   "performance moment" per 2-4s loop. */
 
 import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import {
   C,
+  GRADIENT_POINTS_FRAG,
+  GRADIENT_POINTS_VERT,
   SceneProps,
+  flicker,
   makeRng,
   pulse,
   seg,
-  useFlatMaterial,
+  strike,
   useGlowMaterial,
+  useSmoothMaterial,
   useWireMaterial,
 } from './shared';
 
 /* -------------------------------------------------------------------------- */
-/* Capture the Flag — flag planted on a wireframe server block                 */
+/* Capture the Flag                                                            */
+/* Deep violet rack + hazard-striped base. The flag ripples continuously and   */
+/* every 4s runs a scanline glitch: the cloth tears into horizontal bands and  */
+/* the material flips to digital-noise green, then snaps back.                 */
 /* -------------------------------------------------------------------------- */
-export function CaptureTheFlag({ tier }: SceneProps) {
-  const wire = useWireMaterial(C.phosphor, 0.7);
-  const flat = useFlatMaterial(C.phosphor, 0.7);
+export function CaptureTheFlag({ tier, p }: SceneProps) {
+  const wire = useWireMaterial(p.base, 0.75);
+  const rack = useSmoothMaterial(p.base, { emissive: 0.35 });
+  const hazard = useSmoothMaterial(C.amber, { emissive: 0.7 });
   const geoRef = useRef<THREE.PlaneGeometry>(null);
   const base = useRef<Float32Array | null>(null);
   const group = useRef<THREE.Group>(null);
 
   const [w, h] = [seg(tier, 14, 8), seg(tier, 10, 6)];
+
+  const flagMat = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: new THREE.Color(p.base),
+        emissive: new THREE.Color(p.base),
+        emissiveIntensity: 0.5,
+        flatShading: true,
+        side: THREE.DoubleSide,
+        roughness: 1,
+      }),
+    [p.base],
+  );
+  const cSolid = useMemo(() => new THREE.Color(p.base), [p.base]);
+  const cCode = useMemo(() => new THREE.Color(p.accent), [p.accent]);
 
   useFrame(({ clock }) => {
     const g = geoRef.current;
@@ -35,60 +61,82 @@ export function CaptureTheFlag({ tier }: SceneProps) {
     if (!base.current) base.current = Float32Array.from(pos.array as Float32Array);
 
     const t = clock.elapsedTime;
+    const gw = (t % 4) / 4;
+    const glitch = gw < 0.13 ? 1 - gw / 0.13 : 0;
+
     for (let i = 0; i < pos.count; i++) {
       const x = base.current[i * 3];
       const y = base.current[i * 3 + 1];
-      // Anchored at the pole (x = -0.55), free at the trailing edge.
       const grip = (x + 0.55) / 1.1;
-      pos.setZ(i, Math.sin(x * 6 - t * 3.2 + y * 1.5) * 0.11 * grip * grip);
+      let z = Math.sin(x * 6 - t * 3.2 + y * 1.5) * 0.11 * grip * grip;
+      if (glitch > 0) {
+        const row = Math.floor((y + 0.31) * 12);
+        const tear = Math.sin(row * 91.7 + Math.floor(t * 20)) * 0.5;
+        z += tear * 0.34 * glitch * grip;
+      }
+      pos.setZ(i, z);
     }
     pos.needsUpdate = true;
     g.computeVertexNormals();
+
+    flagMat.color.copy(cSolid).lerp(cCode, glitch);
+    flagMat.emissive.copy(cSolid).lerp(cCode, glitch);
+    flagMat.emissiveIntensity = 0.5 + glitch * 1.4;
 
     if (group.current) group.current.rotation.y = Math.sin(t * 0.3) * 0.3;
   });
 
   return (
     <group ref={group}>
-      {/* server block */}
       <mesh position={[0, -0.95, 0]} material={wire}>
         <boxGeometry args={[1.5, 1.1, 1.1, 2, 2, 2]} />
       </mesh>
-      {/* rack slots */}
       {[-0.3, -0.75, -1.2].map((y) => (
-        <mesh key={y} position={[0, y, 0.56]} material={flat}>
+        <mesh key={y} position={[0, y, 0.56]} material={rack}>
           <boxGeometry args={[1.15, 0.06, 0.02]} />
         </mesh>
       ))}
-      {/* pole */}
-      <mesh position={[-0.55, 0.55, 0]} material={flat}>
+      {[-0.5, -0.17, 0.17, 0.5].map((x) => (
+        <mesh key={x} position={[x, -1.56, 0]} rotation={[0, 0, 0.5]} material={hazard}>
+          <boxGeometry args={[0.16, 0.12, 1.12]} />
+        </mesh>
+      ))}
+      <mesh position={[0, -1.56, 0]} material={rack}>
+        <boxGeometry args={[1.62, 0.13, 1.14]} />
+      </mesh>
+      <mesh position={[-0.55, 0.55, 0]} material={rack}>
         <cylinderGeometry args={[0.035, 0.035, 2.1, 6]} />
       </mesh>
-      {/* flag */}
-      <mesh position={[0, 1.15, 0]}>
+      <mesh position={[0, 1.15, 0]} material={flagMat}>
         <planeGeometry ref={geoRef} args={[1.1, 0.62, w, h]} />
-        <meshStandardMaterial
-          color={C.phosphor}
-          emissive={C.phosphor}
-          emissiveIntensity={0.45}
-          flatShading
-          side={THREE.DoubleSide}
-          roughness={1}
-        />
       </mesh>
     </group>
   );
 }
 
 /* -------------------------------------------------------------------------- */
-/* Escape the Server — vault door with counter-rotating tumbler rings          */
+/* Escape the Server                                                           */
+/* Pink/lavender rack in a purple corridor, warm amber wash. The moment:       */
+/* indicator lights run a red -> amber -> green boot sequence, and the vault   */
+/* handle throws a quarter-turn as the sequence completes.                     */
 /* -------------------------------------------------------------------------- */
-export function EscapeTheServer({ tier }: SceneProps) {
-  const wire = useWireMaterial(C.phosphor, 0.55);
-  const flat = useFlatMaterial(C.phosphor, 0.8);
+export function EscapeTheServer({ tier, p }: SceneProps) {
+  const wire = useWireMaterial(p.accent, 0.5);
+  const shell = useSmoothMaterial(p.base, { emissive: 0.4 });
   const rings = useRef<THREE.Group>(null);
   const handle = useRef<THREE.Group>(null);
+  const leds = useRef<THREE.Group>(null);
   const radial = seg(tier, 32, 18);
+
+  const ledMats = useMemo(
+    () =>
+      ['#ff3b3b', '#ffb347', '#39ff6a'].map(
+        (c) => new THREE.MeshBasicMaterial({ color: new THREE.Color(c), transparent: true, opacity: 0.3 }),
+      ),
+    [],
+  );
+
+  const LED_ROWS = 6;
 
   useFrame(({ clock }) => {
     const t = clock.elapsedTime;
@@ -97,213 +145,303 @@ export function EscapeTheServer({ tier }: SceneProps) {
         child.rotation.z = t * (0.5 - i * 0.32) * (i % 2 === 0 ? 1 : -1);
       });
     }
-    if (handle.current) {
-      // Quarter-turn every 6s, then hold.
-      handle.current.rotation.z = pulse(t, 6, 0.35) * Math.PI * 0.5;
+    const seqP = (t % 4) / 4;
+    const lit = Math.floor(seqP * (LED_ROWS + 2));
+    const stage = Math.min(2, Math.floor(seqP * 3));
+    ledMats.forEach((m, i) => {
+      m.opacity = i === stage ? 0.95 : 0.18;
+    });
+    if (leds.current) {
+      leds.current.children.forEach((row, i) => row.scale.setScalar(i < lit ? 1 : 0.55));
     }
+    if (handle.current) handle.current.rotation.z = pulse(t, 4, 0.28) * Math.PI * 0.5;
   });
 
   return (
-    <group rotation={[0, 0, 0]}>
+    <group>
       <mesh material={wire} position={[0, 0, -0.25]}>
         <cylinderGeometry args={[1.35, 1.35, 0.3, radial, 1, true]} />
       </mesh>
-      <mesh material={flat} position={[0, 0, -0.18]} rotation={[Math.PI / 2, 0, 0]}>
+      <mesh material={shell} position={[0, 0, -0.18]} rotation={[Math.PI / 2, 0, 0]}>
         <cylinderGeometry args={[1.2, 1.2, 0.12, radial]} />
       </mesh>
 
       <group ref={rings}>
         {[1.0, 0.75, 0.5].map((r, i) => (
-          <mesh key={r} position={[0, 0, 0.02 + i * 0.03]} material={flat}>
+          <mesh key={r} position={[0, 0, 0.02 + i * 0.03]} material={shell}>
             <torusGeometry args={[r, 0.045, 6, seg(tier, 36, 20)]} />
+          </mesh>
+        ))}
+      </group>
+
+      <group ref={leds} position={[1.05, 0.35, 0.1]}>
+        {Array.from({ length: LED_ROWS }, (_, i) => (
+          <mesh key={i} position={[0, -i * 0.17, 0]} material={ledMats[i % 3]}>
+            <boxGeometry args={[0.14, 0.07, 0.05]} />
           </mesh>
         ))}
       </group>
 
       <group ref={handle}>
         {[0, Math.PI / 2].map((rot) => (
-          <mesh key={rot} rotation={[0, 0, rot]} position={[0, 0, 0.16]} material={flat}>
+          <mesh key={rot} rotation={[0, 0, rot]} position={[0, 0, 0.16]} material={shell}>
             <boxGeometry args={[0.9, 0.07, 0.07]} />
           </mesh>
         ))}
-        <mesh position={[0, 0, 0.18]} material={flat}>
+        <mesh position={[0, 0, 0.18]} material={shell}>
           <sphereGeometry args={[0.11, 8, 6]} />
         </mesh>
       </group>
-
-      {[0, 1, 2, 3].map((i) => {
-        const a = (i / 4) * Math.PI * 2 + Math.PI / 4;
-        return (
-          <mesh key={i} position={[Math.cos(a) * 1.28, Math.sin(a) * 1.28, 0]} material={flat}>
-            <sphereGeometry args={[0.07, 6, 5]} />
-          </mesh>
-        );
-      })}
     </group>
   );
 }
 
 /* -------------------------------------------------------------------------- */
-/* Bridge Wars — procedural low-poly truss with a slow sway                    */
+/* Bridge Wars                                                                 */
+/* The two halves of the truss are genuinely different colours — hot pink vs   */
+/* cyan. The moment: a stress-creak rhythm (load, hold, release) interrupted   */
+/* every 5s by a wrecking-ball impact that jolts the whole span.               */
 /* -------------------------------------------------------------------------- */
-export function BridgeWars({ tier }: SceneProps) {
+export function BridgeWars({ tier, p }: SceneProps) {
   const group = useRef<THREE.Group>(null);
+  const ball = useRef<THREE.Group>(null);
   const bays = seg(tier, 8, 5);
 
-  const geometry = useMemo(() => {
-    const pts: number[] = [];
+  /* Two geometries, one per half, so each takes its own colour. Same total
+     vertex count as the old single-colour truss — this costs one extra draw
+     call, not extra geometry. */
+  const { left, right } = useMemo(() => {
     const span = 3.4;
     const width = 0.75;
     const step = span / bays;
     const x0 = -span / 2;
     const arc = (i: number) => 0.62 * Math.sin((i / bays) * Math.PI) + 0.18;
+    const half = Math.ceil(bays / 2);
 
-    const push = (a: number[], b: number[]) => pts.push(...a, ...b);
-
-    for (const z of [-width / 2, width / 2]) {
-      for (let i = 0; i < bays; i++) {
-        const xa = x0 + i * step;
-        const xb = x0 + (i + 1) * step;
-        push([xa, 0, z], [xb, 0, z]); // bottom chord
-        push([xa, arc(i), z], [xb, arc(i + 1), z]); // top chord (arched)
-        push([xa, 0, z], [xa, arc(i), z]); // vertical
-        push([xa, 0, z], [xb, arc(i + 1), z]); // diagonal
+    const build = (from: number, to: number) => {
+      const pts: number[] = [];
+      const push = (a: number[], b: number[]) => pts.push(...a, ...b);
+      for (const z of [-width / 2, width / 2]) {
+        for (let i = from; i < to; i++) {
+          const xa = x0 + i * step;
+          const xb = x0 + (i + 1) * step;
+          push([xa, 0, z], [xb, 0, z]);
+          push([xa, arc(i), z], [xb, arc(i + 1), z]);
+          push([xa, 0, z], [xa, arc(i), z]);
+          push([xa, 0, z], [xb, arc(i + 1), z]);
+        }
       }
-      push([x0 + span, 0, z], [x0 + span, arc(bays), z]);
-    }
+      for (let i = from; i <= to; i++) {
+        const x = x0 + i * step;
+        push([x, 0, -width / 2], [x, 0, width / 2]);
+        push([x, arc(i), -width / 2], [x, arc(i), width / 2]);
+      }
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+      return g;
+    };
 
-    // deck + cross bracing
-    for (let i = 0; i <= bays; i++) {
-      const x = x0 + i * step;
-      push([x, 0, -width / 2], [x, 0, width / 2]);
-      push([x, arc(i), -width / 2], [x, arc(i), width / 2]);
-    }
-
-    const g = new THREE.BufferGeometry();
-    g.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
-    return g;
+    return { left: build(0, half), right: build(half, bays) };
   }, [bays]);
 
   useFrame(({ clock }) => {
     const t = clock.elapsedTime;
     if (!group.current) return;
-    group.current.rotation.z = Math.sin(t * 0.7) * 0.022; // load sway
+
+    // Creak: load up, hold under tension, release. Deliberately not a sine.
+    const c = (t % 2.8) / 2.8;
+    const creak = c < 0.45 ? Math.pow(c / 0.45, 2) : c < 0.62 ? 1 : 1 - (c - 0.62) / 0.38;
+
+    // Impact: sharp jolt every 5s, decaying oscillation.
+    const hit = strike(t, 5, 0.3);
+    const jolt = hit * Math.sin(t * 42) * 0.05;
+
+    group.current.rotation.z = -creak * 0.03 + jolt;
     group.current.rotation.y = -0.5 + Math.sin(t * 0.25) * 0.22;
-    group.current.position.y = -0.35 + Math.sin(t * 0.7) * 0.02;
+    group.current.position.y = -0.35 - creak * 0.025 + jolt * 0.4;
+
+    if (ball.current) {
+      const swing = Math.sin((t / 5) * Math.PI * 2 - Math.PI / 2);
+      ball.current.position.x = 1.55 + swing * 0.55;
+      ball.current.rotation.z = -swing * 0.35;
+    }
   });
 
   return (
     <group ref={group}>
-      <lineSegments geometry={geometry}>
-        <lineBasicMaterial color={C.phosphor} transparent opacity={0.9} />
+      <lineSegments geometry={left}>
+        <lineBasicMaterial color={p.base} transparent opacity={0.95} />
       </lineSegments>
-      <mesh position={[0, -0.02, 0]}>
-        <boxGeometry args={[3.4, 0.03, 0.75]} />
-        <meshStandardMaterial
-          color={C.phosphor}
-          emissive={C.phosphor}
-          emissiveIntensity={0.3}
-          flatShading
-          roughness={1}
-        />
+      <lineSegments geometry={right}>
+        <lineBasicMaterial color={p.accent} transparent opacity={0.95} />
+      </lineSegments>
+
+      <mesh position={[-0.85, -0.02, 0]}>
+        <boxGeometry args={[1.7, 0.03, 0.75]} />
+        <meshStandardMaterial color={p.base} emissive={p.base} emissiveIntensity={0.35} flatShading roughness={1} />
       </mesh>
+      <mesh position={[0.85, -0.02, 0]}>
+        <boxGeometry args={[1.7, 0.03, 0.75]} />
+        <meshStandardMaterial color={p.accent} emissive={p.accent} emissiveIntensity={0.35} flatShading roughness={1} />
+      </mesh>
+
+      <group ref={ball} position={[1.55, 0.55, 0]}>
+        <mesh position={[0, 0.75, 0]}>
+          <cylinderGeometry args={[0.012, 0.012, 1.5, 4]} />
+          <meshBasicMaterial color="#6b6b6b" />
+        </mesh>
+        <mesh>
+          <icosahedronGeometry args={[0.3, seg(tier, 1, 0)]} />
+          <meshStandardMaterial color="#23262e" emissive={C.amber} emissiveIntensity={0.18} flatShading roughness={0.6} metalness={0.5} />
+        </mesh>
+        {[-0.14, 0.06].map((y) => (
+          <mesh key={y} position={[0, y, 0]} rotation={[0, 0, 0.5]}>
+            <torusGeometry args={[0.28, 0.035, 4, seg(tier, 12, 7)]} />
+            <meshStandardMaterial color={C.amber} emissive={C.amber} emissiveIntensity={0.8} roughness={0.5} />
+          </mesh>
+        ))}
+      </group>
     </group>
   );
 }
 
 /* -------------------------------------------------------------------------- */
-/* Algorithm Auction — gavel over floating 1010 digits                         */
+/* Algorithm Auction                                                           */
+/* Navy base, cyan/magenta neon grid floor, thin cyan digital rain. The moment:*/
+/* the gavel strike scatters the digit blocks outward; they ease back into     */
+/* formation before the next strike.                                           */
 /* -------------------------------------------------------------------------- */
-export function AlgorithmAuction({ tier }: SceneProps) {
-  const flat = useFlatMaterial(C.phosphor, 0.8);
-  const glow = useFlatMaterial(C.amber, 1.4);
+export function AlgorithmAuction({ tier, p }: SceneProps) {
+  const body = useSmoothMaterial(p.base, { emissive: 0.4 });
+  const neon = useSmoothMaterial(p.hot, { emissive: 1.4 });
+  const digitMat = useSmoothMaterial(p.accent, { emissive: 1.2 });
   const gavel = useRef<THREE.Group>(null);
   const digits = useRef<THREE.Group>(null);
   const radial = seg(tier, 10, 6);
 
+  /* Digital rain is one LineSegments — a single draw call for the whole
+     overlay, rather than one mesh per streak. */
+  const rainCount = seg(tier, 26, 12);
+  const rainGeo = useMemo(() => {
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(rainCount * 6), 3));
+    return g;
+  }, [rainCount]);
+
+  const rainSeeds = useMemo(() => {
+    const rng = makeRng(31337);
+    return Array.from({ length: rainCount }, () => ({
+      x: (rng() - 0.5) * 3.4,
+      z: (rng() - 0.5) * 1.6 - 0.3,
+      speed: 0.7 + rng() * 1.1,
+      len: 0.22 + rng() * 0.4,
+      off: rng() * 3,
+    }));
+  }, [rainCount]);
+
+  const scatterDirs = useMemo(() => {
+    const rng = makeRng(8080);
+    return [0, 1, 2, 3].map(() => ({
+      x: (rng() - 0.5) * 1.4,
+      y: 0.3 + rng() * 0.5,
+      z: (rng() - 0.5) * 0.8,
+      spin: (rng() - 0.5) * 8,
+    }));
+  }, []);
+
   useFrame(({ clock }) => {
     const t = clock.elapsedTime;
+    const CYCLE = 3.4;
+    const HIT = 0.22;
+    const phase = (t % CYCLE) / CYCLE;
+
+    const swing = pulse(t, CYCLE, HIT);
     if (gavel.current) {
-      const strike = pulse(t, 3.4, 0.22);
-      gavel.current.rotation.z = -0.5 + strike * 0.55;
-      gavel.current.position.y = 0.75 - strike * 0.28;
+      gavel.current.rotation.z = -0.5 + swing * 0.55;
+      gavel.current.position.y = 0.75 - swing * 0.28;
     }
+
+    const since = phase < HIT ? 0 : (phase - HIT) / (1 - HIT);
+    const scatter = since === 0 ? 0 : Math.pow(1 - since, 2.4);
+
     if (digits.current) {
       digits.current.children.forEach((d, i) => {
-        d.position.y = -0.55 + Math.sin(t * 1.4 + i * 1.2) * 0.09;
-        d.rotation.y = t * 0.6 + i;
+        const s = scatterDirs[i];
+        d.position.x = -0.78 + i * 0.52 + s.x * scatter;
+        d.position.y = -0.55 + Math.sin(t * 1.4 + i * 1.2) * 0.09 + s.y * scatter;
+        d.position.z = 0.1 + s.z * scatter;
+        d.rotation.y = t * 0.6 + i + s.spin * scatter;
+        d.scale.setScalar(1 - scatter * 0.25);
       });
     }
+
+    const pos = rainGeo.attributes.position as THREE.BufferAttribute;
+    const arr = pos.array as Float32Array;
+    rainSeeds.forEach((r, i) => {
+      const y = 1.5 - ((t * r.speed + r.off) % 3);
+      arr[i * 6] = r.x;
+      arr[i * 6 + 1] = y;
+      arr[i * 6 + 2] = r.z;
+      arr[i * 6 + 3] = r.x;
+      arr[i * 6 + 4] = y - r.len;
+      arr[i * 6 + 5] = r.z;
+    });
+    pos.needsUpdate = true;
   });
 
   return (
     <group>
       <group ref={gavel} position={[0.1, 0.75, 0]} rotation={[0, 0, -0.5]}>
-        <mesh position={[-0.55, 0, 0]} rotation={[0, 0, Math.PI / 2]} material={flat}>
+        <mesh position={[-0.55, 0, 0]} rotation={[0, 0, Math.PI / 2]} material={body}>
           <cylinderGeometry args={[0.055, 0.055, 1.0, radial]} />
         </mesh>
-        <mesh position={[0.18, 0, 0]} rotation={[0, 0, Math.PI / 2]} material={flat}>
+        <mesh position={[0.18, 0, 0]} rotation={[0, 0, Math.PI / 2]} material={neon}>
           <cylinderGeometry args={[0.24, 0.24, 0.62, radial]} />
         </mesh>
       </group>
 
-      {/* sound block */}
-      <mesh position={[0.1, -1.15, 0]} material={flat}>
+      <mesh position={[0.1, -1.15, 0]} material={body}>
         <boxGeometry args={[1.0, 0.12, 0.5]} />
       </mesh>
 
-      {/* 1 0 1 0 */}
       <group ref={digits}>
         {[0, 1, 2, 3].map((i) => (
           <group key={i} position={[-0.78 + i * 0.52, -0.55, 0.1]}>
             {i % 2 === 0 ? (
-              <mesh material={glow}>
+              <mesh material={digitMat}>
                 <boxGeometry args={[0.11, 0.44, 0.11]} />
               </mesh>
             ) : (
-              <mesh material={glow}>
+              <mesh material={digitMat}>
                 <torusGeometry args={[0.16, 0.055, 5, seg(tier, 14, 9)]} />
               </mesh>
             )}
           </group>
         ))}
       </group>
+
+      <gridHelper args={[3.6, seg(tier, 12, 7), p.hot, p.accent]} position={[0, -1.35, 0]} />
+
+      <lineSegments geometry={rainGeo}>
+        <lineBasicMaterial
+          color={p.accent}
+          transparent
+          opacity={0.4}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+        />
+      </lineSegments>
     </group>
   );
 }
 
 /* -------------------------------------------------------------------------- */
-/* AI Whisperer — point-cloud head, noise-driven breathing                     */
+/* AI Whisperer                                                                */
+/* Green-to-cyan gradient point cloud (gradient runs along local Y, so the     */
+/* head reads as two-tone rather than one hue). The moment: brief glitch       */
+/* pulses shear horizontal bands of the head sideways, twice per 5s loop.      */
 /* -------------------------------------------------------------------------- */
-const HEAD_VERT = /* glsl */ `
-  uniform float uTime;
-  uniform float uSize;
-  varying float vA;
-  void main() {
-    vec3 p = position;
-    float n =
-      sin(p.x * 3.1 + uTime * 1.1) * 0.34 +
-      sin(p.y * 4.2 + uTime * 0.9) * 0.34 +
-      sin(p.z * 3.6 + uTime * 1.4) * 0.34;
-    p += normalize(position + 0.0001) * n * 0.11;
-    vec4 mv = modelViewMatrix * vec4(p, 1.0);
-    gl_PointSize = uSize * (240.0 / max(0.001, -mv.z));
-    gl_Position = projectionMatrix * mv;
-    vA = 0.35 + 0.65 * smoothstep(-1.0, 1.0, n);
-  }
-`;
-
-const HEAD_FRAG = /* glsl */ `
-  uniform vec3 uColor;
-  varying float vA;
-  void main() {
-    float d = length(gl_PointCoord - 0.5);
-    if (d > 0.5) discard;
-    gl_FragColor = vec4(uColor, vA * (1.0 - d * 2.0));
-  }
-`;
-
-export function AIWhisperer({ tier }: SceneProps) {
+export function AIWhisperer({ tier, p }: SceneProps) {
   const count = seg(tier, 900, 420);
   const group = useRef<THREE.Group>(null);
 
@@ -311,17 +449,15 @@ export function AIWhisperer({ tier }: SceneProps) {
     const rng = makeRng(9001);
     const arr = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      // Fibonacci-ish sphere, squashed into a head silhouette.
       const u = rng() * 2 - 1;
       const th = rng() * Math.PI * 2;
       const r = Math.sqrt(1 - u * u);
-      let x = r * Math.cos(th);
-      let y = u;
-      let z = r * Math.sin(th);
+      const x = r * Math.cos(th);
+      const y = u;
+      const z = r * Math.sin(th);
       const jaw = y < -0.25 ? 0.82 : 1;
       arr[i * 3] = x * 0.82 * jaw;
       arr[i * 3 + 1] = y * 1.08;
-      // brow / nose bump on the +z face
       arr[i * 3 + 2] = z * 0.88 + (z > 0.55 ? 0.14 : 0) * (1 - Math.abs(y));
     }
     const g = new THREE.BufferGeometry();
@@ -332,23 +468,28 @@ export function AIWhisperer({ tier }: SceneProps) {
   const material = useMemo(
     () =>
       new THREE.ShaderMaterial({
-        vertexShader: HEAD_VERT,
-        fragmentShader: HEAD_FRAG,
+        vertexShader: GRADIENT_POINTS_VERT,
+        fragmentShader: GRADIENT_POINTS_FRAG,
         transparent: true,
         depthWrite: false,
         blending: THREE.AdditiveBlending,
         uniforms: {
           uTime: { value: 0 },
           uSize: { value: tier === 'low' ? 0.055 : 0.045 },
-          uColor: { value: new THREE.Color(C.phosphor) },
+          uGlitch: { value: 0 },
+          uColorA: { value: new THREE.Color(p.base) },
+          uColorB: { value: new THREE.Color(p.accent) },
         },
       }),
-    [tier],
+    [tier, p.base, p.accent],
   );
 
   useFrame(({ clock }) => {
-    material.uniforms.uTime.value = clock.elapsedTime;
-    if (group.current) group.current.rotation.y = Math.sin(clock.elapsedTime * 0.25) * 0.6;
+    const t = clock.elapsedTime;
+    material.uniforms.uTime.value = t;
+    // Two short bursts per 5s loop, offset so the rhythm feels irregular.
+    material.uniforms.uGlitch.value = (flicker(t, 5, 0.05) + flicker(t + 1.7, 5, 0.03)) * 0.32;
+    if (group.current) group.current.rotation.y = Math.sin(t * 0.25) * 0.6;
   });
 
   return (
@@ -359,12 +500,16 @@ export function AIWhisperer({ tier }: SceneProps) {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Tech Minute to Win It — hourglass with sand, gears behind                   */
+/* Tech Minute to Win It                                                       */
+/* Magenta/purple synthwave frame with a cyan CRT-glow hourglass. The moment:  */
+/* the gears run in bursts — stall, then race — against the falling sand,      */
+/* rather than turning at a constant rate.                                     */
 /* -------------------------------------------------------------------------- */
-export function TechMinute({ tier }: SceneProps) {
-  const wire = useWireMaterial(C.phosphor, 0.6);
-  const flat = useFlatMaterial(C.phosphor, 0.8);
-  const sandMat = useGlowMaterial(C.amber, tier === 'low' ? 0.055 : 0.045);
+export function TechMinute({ tier, p }: SceneProps) {
+  const wire = useWireMaterial(p.accent, 0.7);
+  const frame = useSmoothMaterial(p.base, { emissive: 0.5 });
+  const crt = useSmoothMaterial(p.hot, { emissive: 1.3 });
+  const sandMat = useGlowMaterial(p.hot, tier === 'low' ? 0.055 : 0.045);
   const grains = seg(tier, 90, 45);
 
   const sandGeo = useMemo(() => {
@@ -382,7 +527,8 @@ export function TechMinute({ tier }: SceneProps) {
 
   const gears = useRef<THREE.Group>(null);
 
-  useFrame((_, delta) => {
+  useFrame(({ clock }, delta) => {
+    const t = clock.elapsedTime;
     const pos = sandGeo.attributes.position as THREE.BufferAttribute;
     const arr = pos.array as Float32Array;
     for (let i = 0; i < grains; i++) {
@@ -391,9 +537,12 @@ export function TechMinute({ tier }: SceneProps) {
     }
     pos.needsUpdate = true;
 
+    // Race-and-stall: cubed sine so most of the loop is slow and the burst bites.
+    const burst = Math.pow(Math.sin(t * 1.6) * 0.5 + 0.5, 3);
+    const rate = 0.25 + burst * 4.5;
     if (gears.current) {
       gears.current.children.forEach((g, i) => {
-        g.rotation.z += delta * (i % 2 === 0 ? 0.5 : -0.75);
+        g.rotation.z += delta * rate * (i % 2 === 0 ? 1 : -1.45);
       });
     }
   });
@@ -402,7 +551,6 @@ export function TechMinute({ tier }: SceneProps) {
 
   return (
     <group>
-      {/* gears behind */}
       <group ref={gears} position={[0, 0, -1.1]}>
         {[
           [-0.85, 0.5, 0.5],
@@ -429,22 +577,21 @@ export function TechMinute({ tier }: SceneProps) {
         ))}
       </group>
 
-      {/* hourglass */}
-      <mesh position={[0, 0.36, 0]} material={wire}>
+      <mesh position={[0, 0.36, 0]} material={crt}>
         <coneGeometry args={[0.55, 0.72, seg(tier, 14, 8), 1, true]} />
       </mesh>
-      <mesh position={[0, -0.36, 0]} rotation={[Math.PI, 0, 0]} material={wire}>
+      <mesh position={[0, -0.36, 0]} rotation={[Math.PI, 0, 0]} material={crt}>
         <coneGeometry args={[0.55, 0.72, seg(tier, 14, 8), 1, true]} />
       </mesh>
       <points geometry={sandGeo} material={sandMat} />
 
       {[0.78, -0.78].map((y) => (
-        <mesh key={y} position={[0, y, 0]} material={flat}>
-          <boxGeometry args={[1.3, 0.1, 1.3 * 0.35]} />
+        <mesh key={y} position={[0, y, 0]} material={frame}>
+          <boxGeometry args={[1.3, 0.1, 0.46]} />
         </mesh>
       ))}
       {[-0.55, 0.55].map((x) => (
-        <mesh key={x} position={[x, 0, 0]} material={flat}>
+        <mesh key={x} position={[x, 0, 0]} material={frame}>
           <boxGeometry args={[0.05, 1.6, 0.05]} />
         </mesh>
       ))}

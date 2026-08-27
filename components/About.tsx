@@ -1,35 +1,60 @@
-import { ALL_EVENTS, ERAS, FEST } from '@/lib/content';
+/**
+ * "About the fest" — the section a first-time visitor reads before they know
+ * what ANVIKSHA is. Every number is derived from lib/content.ts.
+ *
+ * Era 2 styling, and this is where the branding hierarchy is stated in full
+ * and in plain language: the fest, then the theme, then — once — the eras of
+ * gaming as the visual system that carries it. After this section the eras
+ * are referred to as tracks, never as a second theme.
+ */
 
-const STATS = [
-  { k: 'DATE', v: FEST.dateShort },
-  { k: 'VENUE', v: 'STME NMIMS' },
-  { k: 'EVENTS', v: String(ALL_EVENTS.length) },
-  { k: 'TRACKS', v: String(ERAS.length) },
-];
+import { ALL_EVENTS, ERAS, FEST } from '@/lib/content';
+import EraBackdrop from './era/EraBackdrop';
 
 export default function About() {
+  const stats = [
+    { k: 'Date', v: FEST.dateShort },
+    { k: 'Venue', v: 'STME NMIMS' },
+    { k: 'Events', v: String(ALL_EVENTS.length) },
+    { k: 'Tracks', v: String(ERAS.length) },
+    { k: 'Format', v: FEST.cadence },
+  ];
+
+  const editions = FEST.pastEditions.join(' & ');
+
   return (
     <section id="about" className="era-2 relative mx-auto max-w-7xl px-4 py-24 sm:px-6">
-      <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr]">
+      <EraBackdrop era={2} />
+
+      <div className="relative grid gap-12 lg:grid-cols-[1.05fr_0.95fr]">
         <div>
           <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-white/40">
-            01 / The Brief
-          </p>
-          <h2 className="mt-3 font-pixel text-xl leading-[1.55] text-white sm:text-2xl">
-            FROM ONE SCREEN
-            <br />
-            <span className="text-arcade">TO WORLDS THAT WRITE THEMSELVES</span>
-          </h2>
-          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/70">{FEST.brief}</p>
-          <p className="mt-4 max-w-2xl leading-relaxed text-white/55">
-            {FEST.theme} is the compass for the day: every track is a checkpoint on the same voyage,
-            from raw logic under hard constraints to systems that generate their own worlds. The
-            page you are reading evolves with it — the further you scroll, the softer, brighter and
-            more synthetic everything becomes.
+            01 / About the fest
           </p>
 
-          <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {STATS.map((s) => (
+          <h2 className="mt-3 font-pixel text-lg leading-[1.6] text-white sm:text-2xl">
+            WHAT IS <span className="text-arcade">ANVIKSHA</span>?
+          </h2>
+
+          <div className="mt-6 max-w-2xl space-y-4 text-white/70">
+            <p className="text-lg leading-relaxed">
+              ANVIKSHA is the flagship techfest of the{' '}
+              <span className="text-white/90">{FEST.institute}</span> at {FEST.university}. One day,
+              five tracks, {ALL_EVENTS.length} events — engineering, e-sports, robotics, media and
+              AI, run end to end by students.
+            </p>
+            <p className="leading-relaxed text-white/60">
+              This is the {FEST.edition} — <span className="text-white/90">{FEST.subtitle}</span> —
+              following the {editions} editions.
+            </p>
+            <p className="leading-relaxed text-white/60">
+              This year&apos;s theme is{' '}
+              <span className="text-white/90">{FEST.theme}</span>. {FEST.themePlain}
+            </p>
+          </div>
+
+          <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+            {stats.map((s) => (
               <div key={s.k} className="era-surface px-4 py-4">
                 <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/40">
                   {s.k}
@@ -42,8 +67,13 @@ export default function About() {
 
         <div className="era-surface relative overflow-hidden p-6">
           <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-arcade">
-            TRACK MANIFEST
+            Track manifest
           </div>
+          <p className="mt-3 text-sm leading-relaxed text-white/50">
+            Each track is a leg of the voyage, and each is styled as one era of gaming — the
+            visual language we use to tell the theme, from arcade to AI.
+          </p>
+
           <ul className="mt-5 divide-y divide-white/5">
             {ERAS.map((era) => (
               <li key={era.id} className="flex items-center justify-between gap-4 py-4">
@@ -57,15 +87,17 @@ export default function About() {
                     }}
                   />
                   <div>
-                    <div className="font-pixel text-[9px] leading-[1.6] text-white/90">
-                      {era.headline}
-                    </div>
-                    <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-white/40">
+                    <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-white/90">
                       {era.category}
+                    </div>
+                    <div className="font-pixel text-[8px] leading-[1.7] text-white/35">
+                      {era.headline}
                     </div>
                   </div>
                 </div>
-                <span className="font-mono text-[10px] text-white/35">{era.years}</span>
+                <span className="font-mono text-[10px] text-white/35">
+                  {era.events.length} {era.events.length === 1 ? 'event' : 'events'}
+                </span>
               </li>
             ))}
           </ul>

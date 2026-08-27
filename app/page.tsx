@@ -2,7 +2,10 @@ import Nav from '@/components/Nav';
 import Hero from '@/components/Hero';
 import About from '@/components/About';
 import EraStrip from '@/components/EraStrip';
+import PrizePool from '@/components/PrizePool';
 import Schedule from '@/components/Schedule';
+import Faq from '@/components/Faq';
+import Sponsors from '@/components/Sponsors';
 import Coordinators from '@/components/Coordinators';
 import Register from '@/components/Register';
 import Footer from '@/components/Footer';
@@ -21,7 +24,11 @@ export default function Page() {
         <Hero />
         <About />
         <EraStrip />
+        <PrizePool />
         <Schedule />
+        <Faq />
+        {/* Both render null until their data lands in lib/content.ts. */}
+        <Sponsors />
         <Coordinators />
         <Register />
       </main>

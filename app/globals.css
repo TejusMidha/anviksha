@@ -170,3 +170,723 @@ body {
     transition-duration: 0.001ms !important;
   }
 }
+
+/* ===========================================================================
+   PER-ERA VISUAL LANGUAGE
+
+   Each era gets a *medium*, not just a colour. Everything here is CSS or a
+   single 2D canvas — the WebGL budget is fully committed to the per-event
+   scenes and the hero field, so no era adds a persistent 3D layer.
+
+   Every backdrop is `position:absolute; inset:0; pointer-events:none` inside
+   a `position:relative` section, painted under the content.
+   =========================================================================== */
+
+.era-backdrop {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* --------------------------------------------------------------------------
+   ERA 1 — ARCADE: CRT phosphor. Scanlines, faint chromatic fringe, and
+   hard cuts. Nothing in era 1 eases: an arcade menu snaps.
+   -------------------------------------------------------------------------- */
+
+/* Two stacked gradients: fine scanlines + a slow rolling refresh bar. */
+.crt-scanlines::before {
+  content: '';
+  position: absolute;
+  inset: -100% 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0px,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(0, 0, 0, 0.28) 3px,
+    rgba(0, 0, 0, 0.28) 4px
+  );
+  background-size: 100% 4px;
+  opacity: 0.5;
+}
+
+.crt-scanlines::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  height: 22%;
+  background: linear-gradient(
+    to bottom,
+    rgba(57, 255, 106, 0) 0%,
+    rgba(57, 255, 106, 0.045) 50%,
+    rgba(57, 255, 106, 0) 100%
+  );
+  animation: crt-roll 7s linear infinite;
+}
+
+@keyframes crt-roll {
+  0% { transform: translateY(-120%); }
+  100% { transform: translateY(560%); }
+}
+
+/* Chromatic aberration without a shader: the same text painted twice in
+   complementary channels, offset by a third of a pixel-grid cell. Cheap —
+   it is two extra text-shadows, composited once. */
+.crt-aberrate {
+  text-shadow:
+    -0.6px 0 0 rgba(255, 46, 126, 0.55),
+    0.6px 0 0 rgba(76, 224, 255, 0.45),
+    0 0 18px rgba(57, 255, 106, 0.35);
+}
+
+/* Section-wide fringe on the era-1 backdrop itself. */
+.crt-fringe {
+  background:
+    radial-gradient(120% 100% at 50% 50%, rgba(57, 255, 106, 0.05) 0%, transparent 70%),
+    linear-gradient(90deg, rgba(255, 46, 126, 0.035) 0%, transparent 12%, transparent 88%, rgba(76, 224, 255, 0.035) 100%);
+}
+
+/* Arcade menus do not animate — they cut. This kills easing inside era 1 for
+   the interactive surfaces, and swaps hover for an instant inverted state. */
+.era-1 .era-surface,
+.era-1 .era-chip,
+.era-1 .arcade-cut {
+  transition: none !important;
+}
+
+.era-1 .arcade-cut:hover,
+.era-1 .arcade-cut:focus-visible {
+  background: color-mix(in srgb, var(--era-color) 18%, transparent);
+  border-color: var(--era-color);
+  box-shadow: 0 0 0 1px var(--era-color);
+}
+
+/* --------------------------------------------------------------------------
+   ERA 2 — CONSOLE WARS: impact. Vignette plus diagonal speed lines that
+   shift with scroll (driven by --speed-shift, written from JS as a plain
+   number of pixels — transform only, never layout).
+   -------------------------------------------------------------------------- */
+
+.console-vignette {
+  background: radial-gradient(
+    100% 80% at 50% 50%,
+    transparent 35%,
+    rgba(8, 9, 13, 0.55) 85%,
+    rgba(8, 9, 13, 0.8) 100%
+  );
+}
+
+.speed-lines {
+  position: absolute;
+  inset: -30%;
+  background: repeating-linear-gradient(
+    -62deg,
+    transparent 0px,
+    transparent 46px,
+    rgba(255, 46, 126, 0.09) 46px,
+    rgba(255, 46, 126, 0.09) 48px,
+    transparent 48px,
+    transparent 92px
+  );
+  transform: translate3d(0, var(--speed-shift, 0px), 0);
+  will-change: transform;
+}
+
+/* --------------------------------------------------------------------------
+   ERA 3 — NETWORKED PLAY: connection motif. The drifting nodes and links are
+   a 2D canvas (components/era/ConnectionField.tsx); this is the glass the
+   canvas sits behind, and the softer surface treatment for the cards.
+   -------------------------------------------------------------------------- */
+
+.network-wash {
+  background:
+    radial-gradient(60% 50% at 20% 15%, rgba(139, 92, 255, 0.14) 0%, transparent 70%),
+    radial-gradient(55% 45% at 82% 78%, rgba(76, 224, 255, 0.1) 0%, transparent 70%);
+}
+
+.era-3 .era-surface {
+  /* Glassier than the token default: era 3 is where surfaces stop being solid. */
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--era-surface) 88%, rgba(255, 255, 255, 0.06)),
+    var(--era-surface)
+  );
+  border-color: color-mix(in srgb, var(--era-color) 42%, transparent);
+}
+
+/* --------------------------------------------------------------------------
+   ERA 4 — OPEN WORLD: depth through parallax. Three transform-only layers
+   driven by --parallax (a 0..1 scroll ratio written from JS). Warmer light.
+   -------------------------------------------------------------------------- */
+
+.parallax-layer {
+  position: absolute;
+  inset: -20% -10%;
+  will-change: transform;
+}
+
+.parallax-far {
+  transform: translate3d(0, calc(var(--parallax, 0) * 26px), 0);
+  background: radial-gradient(70% 44% at 50% 100%, rgba(139, 92, 255, 0.16) 0%, transparent 72%);
+}
+
+.parallax-mid {
+  transform: translate3d(0, calc(var(--parallax, 0) * 62px), 0);
+  background: radial-gradient(52% 36% at 22% 92%, rgba(255, 201, 60, 0.1) 0%, transparent 70%),
+    radial-gradient(48% 34% at 80% 96%, rgba(76, 224, 255, 0.12) 0%, transparent 70%);
+}
+
+.parallax-near {
+  transform: translate3d(0, calc(var(--parallax, 0) * 118px), 0);
+  background: linear-gradient(to top, rgba(255, 201, 60, 0.055) 0%, transparent 42%);
+}
+
+/* Warmer ambient + more organic corners than the token default. */
+.era-4 .era-surface {
+  border-radius: calc(var(--era-radius) + 6px);
+  box-shadow:
+    0 0 var(--era-glow) color-mix(in srgb, var(--era-color) 20%, transparent),
+    0 0 calc(var(--era-glow) * 1.4) rgba(255, 201, 60, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* --------------------------------------------------------------------------
+   ERA 5 — NEXT-GEN / AI: holographic. A noise-driven gradient that drifts
+   continuously. @property lets the browser interpolate the colour stops on
+   the compositor; without it the @supports fallback animates background
+   position instead, which reads almost the same and costs no more.
+   -------------------------------------------------------------------------- */
+
+@property --holo-x {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 30%;
+}
+@property --holo-y {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 25%;
+}
+@property --holo-spread {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 55%;
+}
+
+.holo-field {
+  background:
+    radial-gradient(
+      var(--holo-spread) var(--holo-spread) at var(--holo-x) var(--holo-y),
+      rgba(76, 224, 255, 0.17) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      calc(var(--holo-spread) * 0.8) calc(var(--holo-spread) * 0.9)
+        at calc(100% - var(--holo-x)) calc(100% - var(--holo-y)),
+      rgba(139, 92, 255, 0.13) 0%,
+      transparent 72%
+    ),
+    radial-gradient(80% 60% at 50% 120%, rgba(255, 201, 60, 0.06) 0%, transparent 70%);
+  animation: holo-drift 18s ease-in-out infinite alternate;
+}
+
+@keyframes holo-drift {
+  0%   { --holo-x: 26%; --holo-y: 22%; --holo-spread: 52%; }
+  35%  { --holo-x: 58%; --holo-y: 40%; --holo-spread: 66%; }
+  70%  { --holo-x: 40%; --holo-y: 68%; --holo-spread: 58%; }
+  100% { --holo-x: 72%; --holo-y: 30%; --holo-spread: 70%; }
+}
+
+/* Fallback for engines without @property: animate the gradient's position
+   instead of its stops. Same read, no custom-property interpolation needed. */
+@supports not (background: paint(x)) {
+  @supports not (animation-timeline: scroll()) {
+    .holo-field {
+      background-size: 180% 180%;
+      animation: holo-pan 20s ease-in-out infinite alternate;
+    }
+    @keyframes holo-pan {
+      0% { background-position: 0% 20%; }
+      100% { background-position: 100% 80%; }
+    }
+  }
+}
+
+/* Faint generative grain so the holo field is not a flat wash. A single
+   inline SVG turbulence, no fetch, painted once and never re-rasterised. */
+.holo-grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+}
+
+/* --------------------------------------------------------------------------
+   Shared interactive affordances for everything added in this pass.
+   -------------------------------------------------------------------------- */
+
+/* 44px minimum touch target — applied to every new control. Padding does the
+   work so the visual size is unchanged where the design wants something
+   smaller than 44px. */
+.tap-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* One focus treatment for the whole site, era-tinted. Keyboard only. */
+.focus-era:focus-visible {
+  outline: 2px solid var(--era-color);
+  outline-offset: 3px;
+  border-radius: calc(var(--era-radius) * 0.5 + 2px);
+}
+
+/* Body lock while a modal is open. Position-fixed would jump the scroll
+   position on iOS, so this only removes the scrollbar and blocks the wheel. */
+body.modal-open {
+  overflow: hidden;
+  /* Compensate for the removed scrollbar so the page does not shift. */
+  padding-right: var(--scrollbar-gap, 0px);
+}
+
+/* Era-5 cards enter by drifting together out of noise and leave by drifting
+   apart — the DOM echo of Game-Athon's particle dissolve. */
+@keyframes holo-assemble {
+  0% { opacity: 0; transform: translate3d(0, 18px, 0) scale(0.965); filter: blur(6px); }
+  100% { opacity: 1; transform: none; filter: blur(0); }
+}
+
+.holo-assemble {
+  animation: holo-assemble 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ===========================================================================
+   BRICK-STAIRCASE TIMELINE (components/timeline/*)
+
+   Track chrome — bricks, HUD borders, ground — is a constant warm brick red
+   throughout, which is the brochure's own constant. Each row's callout then
+   picks up that EVENT's palette via --step-color / --step-accent / --step-hot,
+   set inline from lib/palettes.ts, so scrolling the day reads as varied
+   rather than monochrome.
+   =========================================================================== */
+
+:root {
+  --brick: #c9502e;
+  --brick-dark: #8f3620;
+  --brick-light: #e8703f;
+  --brick-mortar: #5c2314;
+}
+
+.timeline-wrap {
+  --tl-block: 58px;
+  --tl-sprite-w: 52px;
+  --tl-sprite-h: 61px; /* 12x14 grid, so height = width * 14/12 */
+
+  /* The staircase lane, as fractions of track width. Declared here because
+     BOTH the CSS (step `left`) and the rAF loop (sprite x) read them — if
+     they ever disagreed the Voyager would walk beside the blocks. */
+  --tl-lane-start: 0.19;
+  --tl-lane-width: 0.62;
+
+  padding-block: 8px;
+  position: relative;
+}
+
+/* The live hero field sits behind the whole page; over a 20+ row track it
+   competes with the blocks. A local scrim keeps the level readable without
+   dimming the field everywhere else. */
+.timeline-wrap::before {
+  content: '';
+  position: absolute;
+  inset: -40px -6% 0;
+  background: radial-gradient(
+    58% 42% at 50% 50%,
+    rgba(8, 9, 13, 0.82) 0%,
+    rgba(8, 9, 13, 0.66) 55%,
+    rgba(8, 9, 13, 0.2) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.timeline-wrap > * { position: relative; z-index: 1; }
+
+@media (max-width: 640px) {
+  .timeline-wrap {
+    --tl-block: 46px;
+    --tl-sprite-w: 42px;
+    --tl-sprite-h: 49px;
+
+    /* Narrow lane on phones: blocks hug the left so a full-width callout
+       always has room to its right. Without this the mid-lane steps push
+       their callout off a 390px screen. */
+    --tl-lane-start: 0.2;
+    --tl-lane-width: 0.2;
+  }
+}
+
+/* ── time axis ──────────────────────────────────────────────────────────── */
+.tl-axis {
+  position: absolute;
+  inset: 0 0 0 0;
+  pointer-events: none;
+}
+
+.tl-hour {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transform: translateY(-50%);
+}
+
+.tl-hour-label {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: rgba(255, 255, 255, 0.28);
+  min-width: 34px;
+  text-align: right;
+}
+
+.tl-hour-rule {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0.13),
+    rgba(255, 255, 255, 0.03) 60%,
+    transparent
+  );
+}
+
+/* ── one step ───────────────────────────────────────────────────────────── */
+/* The step box is exactly the BLOCK's size and is centred on the computed
+   (x, y). The HUD hangs off it absolutely rather than sitting in a flex row —
+   otherwise the row's own width would shift the block off the point the
+   Voyager's transform is calculated against, and the sprite would land beside
+   its block instead of on it. */
+.tl-step {
+  position: absolute;
+  width: var(--tl-block);
+  height: var(--tl-block);
+  transform: translate(-50%, -50%);
+}
+
+/* ── brick "?" block ────────────────────────────────────────────────────── */
+.tl-block {
+  position: relative;
+  width: var(--tl-block);
+  height: var(--tl-block);
+  flex: none;
+  will-change: transform;
+}
+
+.tl-block-face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background:
+    linear-gradient(180deg, var(--brick-light) 0%, var(--brick) 38%, var(--brick-dark) 100%);
+  border: 3px solid var(--brick-mortar);
+  box-shadow:
+    inset 0 3px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.3),
+    0 4px 0 var(--brick-mortar),
+    0 0 22px color-mix(in srgb, var(--step-hot, var(--brick)) 30%, transparent);
+  /* Chamfered, not rounded — 16-bit blocks have corners. */
+  border-radius: 2px;
+  image-rendering: pixelated;
+}
+
+.tl-glyph {
+  font-family: var(--font-pixel), monospace;
+  font-size: calc(var(--tl-block) * 0.4);
+  line-height: 1;
+  color: var(--amber);
+  text-shadow: 0 2px 0 var(--brick-mortar), 0 0 12px rgba(255, 201, 60, 0.6);
+  transform: translateY(1px);
+}
+
+.tl-rivet {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  background: var(--brick-mortar);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+.tl-rivet-tl { top: 4px; left: 4px; }
+.tl-rivet-tr { top: 4px; right: 4px; }
+.tl-rivet-bl { bottom: 4px; left: 4px; }
+.tl-rivet-br { bottom: 4px; right: 4px; }
+
+/* Landed blocks stay lit in the row's own colour. */
+.tl-step[data-active] .tl-block-face {
+  box-shadow:
+    inset 0 3px 0 rgba(255, 255, 255, 0.28),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.3),
+    0 4px 0 var(--brick-mortar),
+    0 0 30px color-mix(in srgb, var(--step-hot) 55%, transparent);
+  border-color: color-mix(in srgb, var(--step-accent) 45%, var(--brick-mortar));
+}
+
+/* ── dust puff ──────────────────────────────────────────────────────────── */
+.tl-dust {
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  width: 9px;
+  height: 9px;
+  margin-left: -4.5px;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── HUD callout: thick-border pixel box, keyed to the row's own palette ─── */
+.tl-hud {
+  position: absolute;
+  top: 50%;
+  min-width: 190px;
+  max-width: 260px;
+  background: rgba(10, 10, 14, 0.92);
+  border: 3px solid color-mix(in srgb, var(--step-accent) 60%, var(--brick-mortar));
+  border-radius: 3px;
+  box-shadow:
+    0 0 0 2px rgba(0, 0, 0, 0.6),
+    0 0 24px color-mix(in srgb, var(--step-color) 26%, transparent);
+  /* Hidden until the Voyager lands on this block. */
+  opacity: 0;
+  transform: translateX(-8px) scale(0.94);
+  transition: opacity 200ms ease, transform 260ms cubic-bezier(0.2, 1.4, 0.4, 1);
+  pointer-events: none;
+}
+
+/* Callout flips to the other side of the block on the return leg of the
+   staircase, so it never runs off the edge of the track. */
+.tl-hud-right {
+  left: calc(var(--tl-block) + 14px);
+  transform: translateY(-50%) translateX(-8px) scale(0.94);
+}
+.tl-hud-left {
+  right: calc(var(--tl-block) + 14px);
+  transform: translateY(-50%) translateX(8px) scale(0.94);
+}
+
+.tl-step[data-active] .tl-hud {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0) scale(1);
+  pointer-events: auto;
+}
+
+.tl-hud-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 5px 8px;
+  background: color-mix(in srgb, var(--step-color) 40%, rgba(0, 0, 0, 0.75));
+  border-bottom: 2px solid color-mix(in srgb, var(--step-accent) 45%, transparent);
+}
+
+.tl-hud-time {
+  font-family: var(--font-pixel), monospace;
+  font-size: 9px;
+  line-height: 1;
+  color: var(--amber);
+}
+
+.tl-hud-track {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 8px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--step-hot) 85%, white);
+}
+
+.tl-hud-body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 8px;
+}
+
+.tl-hud-name {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: rgba(255, 255, 255, 0.94);
+  text-decoration: none;
+}
+
+a.tl-hud-name:hover {
+  color: var(--step-hot);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.tl-hud-venue {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+/* ── the Voyager ────────────────────────────────────────────────────────── */
+/* The rAF loop writes the BLOCK CENTRE into .tl-sprite's transform. These
+   margins then place the sprite's feet exactly on the block's top face:
+   up by half a block, then up by the sprite's own height. */
+.tl-sprite {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--tl-sprite-w);
+  height: var(--tl-sprite-h);
+  margin-top: calc(var(--tl-block) * -0.5 - var(--tl-sprite-h));
+  margin-left: calc(var(--tl-sprite-w) * -0.5);
+  will-change: transform;
+  pointer-events: none;
+  z-index: 8;
+  filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.5));
+}
+
+/* NO transition here. The rAF loop writes this element's transform every
+   frame for the idle bob, so a transition on `transform` meant the sprite the
+   user actually sees lagged its own scroll-driven position by the full 120ms
+   — on top of the layout-thrash delay. The bob is already smooth because it
+   is a sine sampled per frame; it does not need easing, and easing anything
+   in the scroll path is what makes a scroll-linked sprite read as trailing.
+
+   The landing bump and the callout reveal still ease — those are discrete
+   events, not scroll-linked state. */
+.tl-sprite-inner {
+  width: 100%;
+  height: 100%;
+}
+
+.tl-sprite-inner svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ── drifting bit-mites ─────────────────────────────────────────────────── */
+.tl-mite {
+  position: absolute;
+  opacity: 0.5;
+  pointer-events: none;
+}
+.tl-mite-a { top: 18%; right: 4%; animation: tl-drift 11s ease-in-out infinite; }
+.tl-mite-b { top: 62%; left: 3%; animation: tl-drift 14s ease-in-out infinite reverse; }
+
+@keyframes tl-drift {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-18px, 26px); }
+}
+
+/* ── staircase turn marker ──────────────────────────────────────────────── */
+.tl-turn {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--tl-block) * -0.55);
+  width: 2px;
+  height: 18px;
+  margin-left: -1px;
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--brick) 70%, transparent), transparent);
+}
+
+/* ── ground / hill / pipe scenery ───────────────────────────────────────── */
+.tl-scenery {
+  position: relative;
+  height: 88px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.tl-scenery-top { margin-bottom: 12px; }
+.tl-scenery-bottom { margin-top: 20px; }
+
+.tl-ground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 26px;
+  /* Brick coursing, drawn with gradients — no image, no repeat cost. */
+  background-color: var(--brick);
+  background-image:
+    linear-gradient(90deg, var(--brick-mortar) 2px, transparent 2px),
+    linear-gradient(180deg, var(--brick-light) 3px, transparent 3px),
+    linear-gradient(180deg, var(--brick-mortar) 2px, transparent 2px);
+  background-size: 26px 13px, 26px 13px, 100% 13px;
+}
+
+.tl-scenery-top .tl-ground { bottom: 0; }
+.tl-scenery-bottom .tl-ground { top: 0; }
+
+.tl-hill {
+  position: absolute;
+  bottom: 22px;
+  background: linear-gradient(180deg, #3fbf6a 0%, #1f8f47 100%);
+  border-radius: 50% 50% 0 0;
+  opacity: 0.42;
+}
+.tl-hill-a { left: 6%; width: 128px; height: 54px; }
+.tl-hill-b { left: 24%; width: 84px; height: 36px; opacity: 0.3; }
+.tl-hill-c { right: 12%; width: 112px; height: 46px; bottom: auto; top: 20px; border-radius: 0 0 50% 50%; }
+
+.tl-pipe {
+  position: absolute;
+  right: 14%;
+  bottom: 22px;
+  width: 46px;
+  height: 46px;
+  background: linear-gradient(90deg, #1f8f47 0%, #3fbf6a 40%, #1f8f47 100%);
+  border: 3px solid #0f5c2c;
+  border-radius: 3px 3px 0 0;
+}
+.tl-pipe::before {
+  content: '';
+  position: absolute;
+  left: -7px;
+  right: -7px;
+  top: -12px;
+  height: 14px;
+  background: linear-gradient(90deg, #1f8f47 0%, #3fbf6a 40%, #1f8f47 100%);
+  border: 3px solid #0f5c2c;
+  border-radius: 3px;
+}
+.tl-pipe-short { right: 8%; height: 30px; bottom: auto; top: 26px; }
+
+/* ── mobile: the vertical format is the point, so nothing scrolls sideways ── */
+@media (max-width: 640px) {
+  /* Always to the right on a phone: the left-flip needs room the narrow lane
+     does not have, and a consistent side is easier to read one-handed. */
+  .tl-hud,
+  .tl-hud-left,
+  .tl-hud-right {
+    left: calc(var(--tl-block) + 10px);
+    right: auto;
+    min-width: 0;
+    /* Never wider than the space actually remaining to the track's edge. */
+    max-width: calc(
+      (1 - var(--tl-lane-start) - var(--tl-lane-width)) * 100vw - var(--tl-block) - 26px
+    );
+    transform: translateY(-50%) translateX(-6px) scale(0.96);
+  }
+  .tl-hud-name { font-size: 12px; }
+  .tl-hud-bar { padding: 4px 6px; }
+  .tl-hud-body { padding: 6px; }
+  .tl-hour-label { min-width: 24px; font-size: 8px; }
+  .tl-mite { display: none; }
+}
+
+/* ── reduced motion: keep every scroll-linked POSITION, drop the bounce ──── */
+@media (prefers-reduced-motion: reduce) {
+  .tl-hud { transition: none; }
+  .tl-mite { animation: none; }
+}

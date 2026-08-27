@@ -1,7 +1,10 @@
 # ANVIKSHA '26 — The Epoch
 
 Techfest site for **STME, NMIMS Chandigarh** — 12 September 2026.
-Theme: _Digital Voyage: Charting the Course of Innovation_, told through the evolution of gaming.
+
+Theme: **Digital Voyage: Charting the Course of Innovation** — charted across five eras of
+gaming, from arcade to AI. The eras are the *visual system* used to express the theme, not a
+second theme: everywhere copy appears the order is fest → theme → eras.
 
 Next.js 14 (App Router) · TypeScript · Tailwind · react-three-fiber · framer-motion.
 **Zero external assets**: every 3D object is generated in the browser from Three.js primitives.
@@ -41,9 +44,24 @@ No environment variables, no `vercel.json`, no build overrides. Vercel detects N
 app/
   layout.tsx          fonts (next/font), metadata, MotionConfig
   page.tsx            section composition
-  globals.css         design tokens + the five era token blocks
+  globals.css         design tokens, five era token blocks, per-era backdrops
+  @modal/(.)events/[slug]  intercepting route -> event opens as a modal
+  @modal/default.tsx       null when no modal is active
+  events/[slug]            standalone event page (deep link / hard refresh)
 components/
   HeroBackground.tsx  fixed full-page canvas wrapper; owns scroll progress
+  BootSequence.tsx    first-load-only boot animation (sessionStorage guarded)
+  Countdown.tsx       isolated 1s interval; owns the only timer on the page
+  EventDetail.tsx     detail body, shared by the modal AND the standalone page
+  EventModal.tsx      modal shell: esc / backdrop / focus trap / canvas suspend
+  PrizePool.tsx       count-up total; renders null until a total is supplied
+  Faq.tsx / Sponsors.tsx / Socials.tsx / Icons.tsx
+  era/
+    EraBackdrop.tsx   per-era background medium + ERA_MOTION presets
+    ConnectionField.tsx  era 3's drifting node/link network (2D canvas)
+  timeline/
+    TimelineTrack.tsx  brick-staircase run-of-show (scroll-driven, DOM only)
+    sprites.tsx        ORIGINAL pixel art — read the IP note at the top
   Hero / About / EraStrip / EraNav / EventCard / Schedule / Coordinators / Register / Footer
   three/
     HeroField.tsx     the morphing instanced field
@@ -58,7 +76,11 @@ components/
       index.tsx       SceneKey -> component registry (+ camera framing)
 lib/
   content.ts          ALL copy: fest info, eras, events, schedule, coordinators
-  hooks.ts            reduced-motion, IntersectionObserver, render-slot semaphore, device tier
+  palettes.ts         per-event colour, read by BOTH the 3D objects and the
+                      timeline callouts — one source of truth for event colour
+  timeline.ts         staircase layout maths (pure, no React)
+  hooks.ts            reduced-motion, IntersectionObserver, render/mount
+                      budgets, canvas suspension, device tier
 ```
 
 ### Editing content
@@ -66,9 +88,13 @@ lib/
 Everything user-facing lives in `lib/content.ts`. Adding an event = one entry in an era's
 `events` array + one scene component + one line in `components/three/scenes/index.tsx`.
 
-**Two blocks are placeholders and are marked as such in the file and on the page:**
-`SCHEDULE` and `COORDINATORS`. Drop in the real rows from the proposal — the shapes are
-already correct, nothing else changes.
+**Fields awaiting real data are typed `| null` and every consumer omits the row rather than
+printing "TBD".** Grep `NEEDS DATA` in `lib/content.ts` for the full list. Sections whose data
+is entirely missing (`PRIZE_POOL.total`, `COORDINATORS`, `SPONSORS`) render **nothing** — supply
+the data and they appear, no code change.
+
+`SCHEDULE` is still scaffolding: replace the rows, then flip `SCHEDULE_IS_PLACEHOLDER` to
+`false` to drop the on-page caveat.
 
 ---
 
@@ -91,16 +117,53 @@ uses `flatShading` + wireframe + a near-unlit rig; era 5 uses additive points an
 Type: **Press Start 2P** (hero + era labels), **Space Grotesk** (body), **JetBrains Mono**
 (schedule, data, labels) — all via `next/font/google`.
 
+### Per-event colour
+
+`lib/palettes.ts` gives each of the 21 events its own `base / accent / hot / rim`, taken from
+that event's page in the brochure. Both consumers read it:
+
+- the 3D object **and its lighting rig** (`Rig` is keyed off the event's palette, not its era)
+- the matching row's callout on the timeline
+
+So the Valorant row on the run-of-show and the Valorant object on its card are the same pink by
+construction, not by coincidence.
+
+### The staircase timeline
+
+`components/timeline/` renders the run-of-show as a descending staircase of brick blocks with a
+character walking down it. **Pure DOM/SVG — no WebGL context**, deliberately: the mount budget
+below is the tightest resource on the page and the timeline must not compete for it.
+
+Vertical position comes from each row's **actual clock time**, so distance down the track is
+elapsed time; `lib/timeline.ts` then relaxes colliding rows apart by a minimum gap so two 10:00
+events stay legible. The horizontal zigzag is ornament and carries no data.
+
+Scroll drives the character through a rAF tick that writes a transform and a `data-active`
+attribute directly to the DOM — **no React state in the scroll path**, the same discipline the
+hero field uses.
+
+**IP**: the brochure's own timeline page uses Nintendo sprites and its Technical divider uses
+Bandai Namco sprites. None of that is reproduced. The character ("the Voyager") and creature
+("bit-mite") are original designs in the same 16-bit register — see the note at the top of
+`components/timeline/sprites.tsx`.
+
 ---
 
 ## Performance model
 
 - **Pixel ratio** is capped at 2 on every canvas (`dpr={[1, 2]}`), so 3x phones don't render 3x.
-- **Lazy mount with hysteresis**: an event canvas is created when its card is within 500px of the
-  viewport and destroyed once it is 1200px away. This is not just a memory optimisation — browsers
-  cap live WebGL contexts at roughly 16 and this page has 21 scenes, so keeping them all mounted
-  would silently kill the earliest contexts. The asymmetric margins stop short scrolls from
-  thrashing context creation.
+- **Lazy mount with hysteresis**: an event canvas is created when its card comes near the viewport
+  and destroyed once it is well past. Margins are asymmetric *per axis* (`400px 120px` in,
+  `1000px 400px` out) because the era rails are horizontal — a symmetric margin mounted cards
+  scrolled off to the right that nobody can see.
+- **Mount budget** (`useMountSlot`): margins alone cannot bound the context count, because a tall
+  viewport straddling two horizontal rails legitimately has ~12 cards "near". Measured at 13 live
+  contexts before this was added, against a browser ceiling of roughly 16 — with the detail modal
+  about to add a 14th. At most **8** cards may hold a canvas, granted nearest-viewport-first, which
+  measured back down to 9 contexts (8 cards + hero field) with the same 12 cards asking.
+  The budget is re-evaluated **on scroll**, not only when a card's `wanted` flips: without that,
+  a long scroll with no transition left every slot held by cards that had already gone off-screen
+  (scrolling era 1 → era 3 rendered era 3's wells empty).
 - **Parked loops**: an off-screen canvas is switched to `frameloop="demand"`, which stops
   rAF entirely — an idle section costs nothing per frame.
 - **Global semaphore** (`useRenderSlot`, `lib/hooks.ts`): at most **3** event canvases may run
@@ -112,8 +175,15 @@ Type: **Press Start 2P** (hero + era labels), **Space Grotesk** (body), **JetBra
   (22 on low tier).
 - **Scroll** is read through a ref inside `useFrame`, never React state, so scrolling never
   triggers a re-render of the 3D tree.
+- **Modal canvas suspension** (`suspendBackgroundCanvases`): the detail modal mounts its own scene
+  on top of a live strip. Rather than raise any ceiling, every background card releases its render
+  slot while the modal is open — so the modal's scene runs *inside* the existing budget of 3.
+- **Countdown isolation**: the countdown owns the only `setInterval` on the page and renders
+  nothing but its own digits, so a tick cannot re-render the hero or the 3D tree.
+- **Per-era backdrops are CSS or 2D canvas only.** Eras 2 and 4 read scroll through `useScrollVar`,
+  which writes a CSS custom property on a rAF tick and never touches React state.
 - **`prefers-reduced-motion`**: all canvases render a single static frame and stop; framer-motion
-  is globally set to `reducedMotion="user"`.
+  is globally set to `reducedMotion="user"`; the boot sequence is skipped entirely.
 
 ### What I simplified deliberately
 

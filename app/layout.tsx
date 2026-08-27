@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from 'next';
 import { Press_Start_2P, Space_Grotesk, JetBrains_Mono } from 'next/font/google';
 import { FEST } from '@/lib/content';
 import MotionProvider from '@/components/MotionProvider';
+import BootSequence from '@/components/BootSequence';
 import './globals.css';
 
 const pixel = Press_Start_2P({
@@ -24,13 +25,28 @@ const mono = JetBrains_Mono({
   display: 'swap',
 });
 
+/* Branding hierarchy, applied to metadata exactly as it is applied on the
+   page: fest first, theme second, the gaming eras only as a subtitle to the
+   theme. "Evolution of gaming" is never a title or a standalone theme line. */
+const TITLE = `${FEST.name} — ${FEST.subtitle} | ${FEST.venue}`;
+const DESCRIPTION = `${FEST.theme}. ${FEST.themeSubtitle} ${FEST.date} at ${FEST.venue}.`;
+
 export const metadata: Metadata = {
-  title: `${FEST.name} — ${FEST.subtitle} | ${FEST.venue}`,
-  description: `${FEST.motif}. ${FEST.theme}. ${FEST.date} at ${FEST.venue}.`,
+  title: {
+    default: TITLE,
+    template: `%s | ${FEST.name}`,
+  },
+  description: DESCRIPTION,
   openGraph: {
     title: `${FEST.name} — ${FEST.subtitle}`,
-    description: `${FEST.motif} · ${FEST.date} · ${FEST.venue}`,
+    description: `${FEST.theme} · ${FEST.date} · ${FEST.venue}`,
     type: 'website',
+    siteName: FEST.name,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `${FEST.name} — ${FEST.subtitle}`,
+    description: `${FEST.theme} · ${FEST.date} · ${FEST.venue}`,
   },
 };
 
@@ -38,13 +54,29 @@ export const viewport: Viewport = {
   themeColor: '#08090d',
   width: 'device-width',
   initialScale: 1,
+  // Users must be able to zoom — the pixel type is small by design.
+  maximumScale: 5,
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+/**
+ * `modal` is the parallel slot that app/@modal/(.)events/[slug] renders into.
+ * On a normal page render it resolves to app/@modal/default.tsx (null).
+ */
+export default function RootLayout({
+  children,
+  modal,
+}: {
+  children: ReactNode;
+  modal: ReactNode;
+}) {
   return (
     <html lang="en" className={`${pixel.variable} ${sans.variable} ${mono.variable}`}>
       <body className="font-sans antialiased">
-        <MotionProvider>{children}</MotionProvider>
+        <MotionProvider>
+          <BootSequence />
+          {children}
+          {modal}
+        </MotionProvider>
       </body>
     </html>
   );
