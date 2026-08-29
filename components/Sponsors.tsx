@@ -74,7 +74,7 @@ export default function Sponsors() {
           <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-white/40">
             07 / Partners
           </p>
-          <h2 className="mt-3 font-pixel text-lg leading-[1.6] text-white sm:text-2xl">
+          <h2 className="section-title mt-3 font-pixel text-lg leading-[1.6] sm:text-2xl">
             BACKED <span className="era-text">BY</span>
           </h2>
         </header>

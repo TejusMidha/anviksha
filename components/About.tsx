@@ -32,8 +32,8 @@ export default function About() {
             01 / About the fest
           </p>
 
-          <h2 className="mt-3 font-pixel text-lg leading-[1.6] text-white sm:text-2xl">
-            WHAT IS <span className="text-arcade">ANVIKSHA</span>?
+          <h2 className="section-title mt-3 font-pixel text-lg leading-[1.6] sm:text-2xl">
+            WHAT IS ANVIKSHA?
           </h2>
 
           <div className="mt-6 max-w-2xl space-y-4 text-white/70">
@@ -74,7 +74,7 @@ export default function About() {
             visual language we use to tell the theme, from arcade to AI.
           </p>
 
-          <ul className="mt-5 divide-y divide-white/5">
+          <ul className="mt-5 divide-y divide-[color:var(--chrome-line-soft)]">
             {ERAS.map((era) => (
               <li key={era.id} className="flex items-center justify-between gap-4 py-4">
                 <div className="flex items-center gap-3">

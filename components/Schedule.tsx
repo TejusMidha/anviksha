@@ -41,8 +41,8 @@ export default function Schedule() {
           <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-white/40">
             03 / Run of Show
           </p>
-          <h2 className="crt-aberrate mt-3 font-pixel text-lg leading-[1.6] text-white sm:text-2xl">
-            <span className="text-phosphor">SCHEDULE</span>.LOG
+          <h2 className="section-title mt-3 font-pixel text-lg leading-[1.6] sm:text-2xl">
+            SCHEDULE.LOG
           </h2>
           <p className="mt-4 max-w-xl text-sm leading-relaxed text-white/55">
             Scroll the level. Each block is one slot on the day — land on it to read the time,
@@ -60,7 +60,7 @@ export default function Schedule() {
               className={`focus-era tap-target border px-3 ${
                 view === v
                   ? 'border-phosphor bg-phosphor/10 text-phosphor'
-                  : 'border-white/15 text-white/45 hover:text-white/70'
+                  : 'border-[color:var(--chrome-line)] text-white/45 hover:text-white/70'
               }`}
             >
               {v === 'track' ? 'LEVEL' : 'LIST'}
@@ -107,7 +107,7 @@ export default function Schedule() {
               {SCHEDULE.map((row, i) => (
                 <tr
                   key={`${row.time}-${row.slot}`}
-                  className="arcade-cut border-b border-white/5 hover:bg-phosphor/[0.08]"
+                  className="arcade-cut border-b border-[color:var(--chrome-line-soft)] hover:bg-phosphor/[0.08]"
                 >
                   <td className="whitespace-nowrap px-4 py-3 text-phosphor">{row.time}</td>
                   <td className="px-4 py-3 text-white/85">

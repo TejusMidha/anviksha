@@ -90,8 +90,13 @@ Everything user-facing lives in `lib/content.ts`. Adding an event = one entry in
 
 **Fields awaiting real data are typed `| null` and every consumer omits the row rather than
 printing "TBD".** Grep `NEEDS DATA` in `lib/content.ts` for the full list. Sections whose data
-is entirely missing (`PRIZE_POOL.total`, `COORDINATORS`, `SPONSORS`) render **nothing** — supply
-the data and they appear, no code change.
+is entirely missing (`PRIZE_POOL.total`, `SPONSORS`, and faculty coordinators) render **nothing**
+— supply the data and they appear, no code change.
+
+Still open: per-event `rules` / `teamSize` / `prize`, the prize pool, sponsors, faculty names,
+and **per-event Drive links** — every event's "More Details" button currently points at the one
+shared brochures folder (`FEST.brochureUrl`), because Drive folder IDs cannot be derived from an
+event name.
 
 `SCHEDULE` is still scaffolding: replace the rows, then flip `SCHEDULE_IS_PLACEHOLDER` to
 `false` to drop the on-page caveat.
@@ -99,6 +104,28 @@ the data and they appear, no code change.
 ---
 
 ## The design system
+
+### Base palette (the brochure's own)
+
+The site's foundation — background, headings, body text, the action colour and all structural
+chrome — is one block of custom properties at the top of `app/globals.css`. Base colours are
+stored as bare `R G B` triples so the **same token** feeds Tailwind's slash-opacity
+(`bg-void/80`) and raw `rgb(… / a)` in CSS; `tailwind.config.ts` only points at them. Changing a
+shade is a one-line edit there, never a component-by-component sweep.
+
+| role | token | value |
+| --- | --- | --- |
+| page ground | `--void` / `--void-hi` / `--void-lo` | deep violet → navy gradient, magenta bloom top-right |
+| headings | `.brochure-title` / `.section-title` | cyan fill + magenta outline glow |
+| body | `--paper` | off-white `#eef1fa` |
+| action | `--amber` | the ONE CTA colour: `.cta-amber` filled, `.cta-amber-ghost` outlined |
+| chrome | `--brick` → `--chrome`, `--chrome-line`, `--chrome-line-soft` | every border, divider and HUD edge |
+| glow pair | `--arcade` + `--holo` | hover, focus, ambient light |
+
+The five era languages and the per-event palettes layer **on top of** this base; they do not
+replace it.
+
+### Era tokens
 
 Five era token blocks in `globals.css` (`.era-1` … `.era-5`) each set the same five variables:
 

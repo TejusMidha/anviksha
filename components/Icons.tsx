@@ -177,3 +177,19 @@ export const SOCIAL_ICONS = {
   unstop: UnstopIcon,
   email: MailIcon,
 } as const;
+
+export function PhoneIcon({ size = 18, ...p }: IconProps) {
+  return (
+    <svg {...base(size)} {...p}>
+      <path d="M7.5 3.5h-3A1.5 1.5 0 0 0 3 5.2c.4 6.6 5.2 11.4 11.8 11.8a1.5 1.5 0 0 0 1.7-1.5v-3l-3.6-1.2-1.6 1.9a12 12 0 0 1-4.3-4.3l1.9-1.6z" />
+    </svg>
+  );
+}
+
+export function FolderIcon({ size = 18, ...p }: IconProps) {
+  return (
+    <svg {...base(size)} {...p}>
+      <path d="M3.5 6.5A1.5 1.5 0 0 1 5 5h4l1.8 2.2H19a1.5 1.5 0 0 1 1.5 1.5v8.8A1.5 1.5 0 0 1 19 19H5a1.5 1.5 0 0 1-1.5-1.5z" />
+    </svg>
+  );
+}

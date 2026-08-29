@@ -125,7 +125,7 @@ export default function EventModal({ event, era }: { event: AnvikshaEvent; era: 
                and would otherwise stretch the full panel, parking the icon on
                the left. */
             className="focus-era sticky top-2 z-20 ml-auto mr-2 flex h-11 w-11 items-center
-                       justify-center border border-white/15 bg-void/70 text-white/70
+                       justify-center border border-[color:var(--chrome-line)] bg-void/70 text-white/70
                        backdrop-blur transition-colors hover:border-[color:var(--era-color)]
                        hover:text-[color:var(--era-color)]"
             style={{ borderRadius: 'var(--era-radius)' }}

@@ -4,14 +4,22 @@ const config: Config = {
   content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}', './lib/**/*.{ts,tsx}'],
   theme: {
     extend: {
+      /* Every colour here is a POINTER at a CSS custom property declared in
+         app/globals.css — there is one place to change a shade, and utility
+         classes (bg-void/80, text-amber, border-brick/30) stay in sync with
+         raw CSS automatically. The `<alpha-value>` placeholder is what keeps
+         Tailwind's slash-opacity working through a variable, which is why the
+         base tokens are stored as bare "R G B" triples. */
       colors: {
-        void: '#08090d',
-        panel: '#12141c',
-        phosphor: '#39ff6a',
-        arcade: '#ff2e7e',
-        violet: '#8b5cff',
-        holo: '#4ce0ff',
-        amber: '#ffc93c',
+        void: 'rgb(var(--void-rgb) / <alpha-value>)',
+        panel: 'rgb(var(--panel-rgb) / <alpha-value>)',
+        paper: 'var(--paper)',
+        phosphor: 'rgb(var(--phosphor-rgb) / <alpha-value>)',
+        arcade: 'rgb(var(--arcade-rgb) / <alpha-value>)',
+        violet: 'rgb(var(--violet-rgb) / <alpha-value>)',
+        holo: 'rgb(var(--holo-rgb) / <alpha-value>)',
+        amber: 'rgb(var(--amber-rgb) / <alpha-value>)',
+        brick: 'rgb(var(--brick-rgb) / <alpha-value>)',
       },
       fontFamily: {
         pixel: ['var(--font-pixel)', 'monospace'],

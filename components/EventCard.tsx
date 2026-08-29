@@ -22,7 +22,16 @@ const EventCanvas = dynamic(() => import('@/components/three/EventCanvas'), {
   loading: () => null,
 });
 
-export default function EventCard({ event, eraId }: { event: AnvikshaEvent; eraId: EraId }) {
+export default function EventCard({
+  event,
+  eraId,
+  eraCategory,
+}: {
+  event: AnvikshaEvent;
+  eraId: EraId;
+  /** The era's track name, shown on the card corner. */
+  eraCategory: string;
+}) {
   const ref = useRef<HTMLDivElement>(null);
 
   /* Mounting uses hysteresis, and that is load-bearing: a browser only allows
@@ -103,12 +112,16 @@ export default function EventCard({ event, eraId }: { event: AnvikshaEvent; eraI
             <EventCanvas scene={event.scene} active={active} reduced={reduced} tier={tier} />
           )}
 
+          {/* Era + track, NOT `event.scene`: that is the internal SceneKey
+              ("captureTheFlag") and printing it put a code identifier on a
+              public card. The category is the same length and means something
+              to a visitor. */}
           <span className="absolute left-3 top-3 font-mono text-[9px] uppercase tracking-[0.2em] text-white/35">
-            {String(eraId).padStart(2, '0')} / {event.scene}
+            ERA {String(eraId).padStart(2, '0')} / {eraCategory}
           </span>
         </div>
 
-        <div className="flex flex-1 flex-col gap-2 border-t border-white/5 p-5">
+        <div className="flex flex-1 flex-col gap-2 border-t border-[color:var(--chrome-line-soft)] p-5">
           <h3 className="era-text font-pixel text-[11px] leading-[1.6]">{event.name}</h3>
           <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-white/45">
             {event.tagline}

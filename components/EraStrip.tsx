@@ -10,9 +10,8 @@ export default function EraStrip() {
         <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-white/40">
           02 / Events
         </p>
-        <h2 className="mt-3 font-pixel text-lg leading-[1.6] text-white sm:text-2xl">
-          {ERAS.length} TRACKS<span className="text-holo">.</span> {ALL_EVENTS.length} EVENTS
-          <span className="text-holo">.</span>
+        <h2 className="section-title mt-3 font-pixel text-lg leading-[1.6] sm:text-2xl">
+          {ERAS.length} TRACKS. {ALL_EVENTS.length} EVENTS.
         </h2>
         <p className="mt-4 max-w-2xl text-white/60">
           Each track is a leg of {FEST.theme.split(':')[0]} — and each is styled as one era of
@@ -70,7 +69,12 @@ export default function EraStrip() {
                            overflow-x-auto overscroll-x-contain px-3 pb-4 sm:mx-0 sm:px-0"
               >
                 {era.events.map((event) => (
-                  <EventCard key={event.id} event={event} eraId={era.id} />
+                  <EventCard
+                    key={event.id}
+                    event={event}
+                    eraId={era.id}
+                    eraCategory={era.category}
+                  />
                 ))}
               </div>
             </div>

@@ -2,14 +2,62 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ===========================================================================
+   BROCHURE BASE PALETTE
+
+   The palette the whole site is built from, taken from the brochure's own
+   consistent base — the one palette that holds across all 31 of its pages.
+   The page GROUND stays the original near-black; everything the brochure
+   contributes is layered on it.
+   This is DISTINCT from the per-event accents (lib/palettes.ts) and from the
+   five era languages below: those are layered ON TOP of this, they do not
+   replace it.
+
+     headings     cyan fill + magenta outline glow  (.brochure-title)
+     body         off-white
+     action       amber — the one CTA colour, site-wide
+     chrome       brick red-orange — every structural border and divider
+     glow pair    magenta + cyan, for hover / focus / ambient light
+
+   Base colours are declared as bare "R G B" triples so the SAME token feeds
+   both Tailwind's slash-opacity (bg-void/80) and plain rgb(... / a) in CSS.
+   Change a value here and it cascades everywhere: nothing downstream
+   hardcodes a base colour.
+   =========================================================================== */
 :root {
-  --void: #08090d;
-  --panel: #12141c;
-  --phosphor: #39ff6a;
-  --arcade: #ff2e7e;
-  --violet: #8b5cff;
-  --holo: #4ce0ff;
-  --amber: #ffc93c;
+  /* The page ground stays the original near-black — the brochure palette is
+     the layer ON it (headings, CTAs, chrome, glow), not the ground itself. */
+  --void-rgb: 8 9 13;        /* #08090d */
+  --panel-rgb: 18 20 28;     /* #12141c */
+
+  --void: rgb(var(--void-rgb));
+  --panel: rgb(var(--panel-rgb));
+
+  /* Off-white body copy. High contrast, never pure #fff. */
+  --paper: #eef1fa;
+
+  /* Accents, triples first so Tailwind can put its own alpha on them
+     (text-holo/70, border-phosphor/20 …), then the plain hex form each of
+     them resolves to, for use in raw CSS. */
+  --phosphor-rgb: 57 255 106;
+  --arcade-rgb: 255 46 126;   /* hot pink / magenta — secondary glow accent */
+  --violet-rgb: 139 92 255;
+  --holo-rgb: 76 224 255;     /* electric cyan — heading fill, glow accent */
+  --amber-rgb: 255 201 60;    /* the single "action" colour: every primary CTA */
+  --brick-rgb: 201 80 46;     /* structural chrome: borders, dividers, HUD */
+
+  --phosphor: rgb(var(--phosphor-rgb));
+  --arcade: rgb(var(--arcade-rgb));
+  --violet: rgb(var(--violet-rgb));
+  --holo: rgb(var(--holo-rgb));
+  --amber: rgb(var(--amber-rgb));
+  --brick: rgb(var(--brick-rgb));
+
+  /* Every structural rule on the site is brick at one of three weights, so
+     borders read as one system instead of a scatter of white/5..white/15. */
+  --chrome: color-mix(in srgb, var(--brick) 55%, transparent);
+  --chrome-line: color-mix(in srgb, var(--brick) 34%, transparent);
+  --chrome-line-soft: color-mix(in srgb, var(--brick) 16%, transparent);
 
   /* Defaults, overridden per-era. These five vars ARE the "evolution":
      each era dials radius / blur / glow / border-softness upward. */
@@ -80,14 +128,14 @@ html {
    root canvas background but below body's own box background). */
 body {
   background: transparent;
-  color: #e8ecf4;
+  color: var(--paper);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
 
 ::selection {
   background: var(--amber);
-  color: #08090d;
+  color: rgb(var(--void-rgb));
 }
 
 /* Thin, era-tinted scrollbars for the horizontal event rails */
@@ -130,15 +178,100 @@ body {
   }
 
   .terminal {
-    background: rgba(6, 10, 8, 0.86);
+    background: rgb(var(--void-rgb) / 0.86);
     border: 1px solid rgba(57, 255, 106, 0.28);
     box-shadow: inset 0 0 60px rgba(57, 255, 106, 0.05);
   }
 
+  /* ---- The single action colour -------------------------------------------
+     Amber, at two weights. FILLED is the primary CTA (Register Now) and there
+     is only ever one of them in a group; GHOST is the second primary action
+     (Event Brochures & Rules). Same hue on purpose — they read as a ranked
+     pair rather than two things shouting at each other — and neither one
+     borrows an event's or an era's colour, so the "action" colour is the same
+     everywhere on the site. */
   .cta-amber {
-    background: linear-gradient(180deg, #ffd76b, #ffc93c);
-    color: #0a0a06;
+    background: linear-gradient(180deg, #ffd76b, var(--amber));
+    color: rgb(var(--void-rgb));
     box-shadow: 0 0 28px rgba(255, 201, 60, 0.35), 0 8px 30px rgba(0, 0, 0, 0.5);
+  }
+
+  .cta-amber-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid color-mix(in srgb, var(--amber) 52%, transparent);
+    background: color-mix(in srgb, var(--amber) 9%, transparent);
+    color: var(--amber);
+    border-radius: 2px;
+    transition: background-color 200ms ease, border-color 200ms ease, transform 200ms ease;
+  }
+
+  .cta-amber-ghost:hover {
+    background: color-mix(in srgb, var(--amber) 18%, transparent);
+    border-color: var(--amber);
+    transform: scale(1.03);
+  }
+
+  /* ---- The brochure heading -----------------------------------------------
+     Cyan fill with a magenta outline traced around the letterforms and a
+     violet/cyan bloom behind them. The four 1px shadows ARE the outline —
+     -webkit-text-stroke eats into a pixel font's already-thin strokes, while
+     offset shadows sit outside the glyph and leave it legible.
+
+     .brochure-title is the heavy version (hero wordmark); .section-title is
+     the same treatment at the weight a 18–24px section h2 can carry without
+     the outline closing up the counters. */
+  .brochure-title {
+    color: var(--holo);
+    text-shadow:
+      -1px 0 0 rgba(255, 46, 126, 0.9),
+      1px 0 0 rgba(255, 46, 126, 0.9),
+      0 -1px 0 rgba(255, 46, 126, 0.9),
+      0 1px 0 rgba(255, 46, 126, 0.9),
+      0 0 16px rgba(255, 46, 126, 0.55),
+      0 0 38px rgba(139, 92, 255, 0.45),
+      0 0 64px rgba(76, 224, 255, 0.22);
+  }
+
+  /* Same fill, outline dialled back — for the second line of a two-line
+     wordmark, where a full outline on both lines reads as noise. */
+  .brochure-title-soft {
+    text-shadow:
+      0 0 2px rgba(255, 46, 126, 0.75),
+      0 0 20px rgba(255, 46, 126, 0.35),
+      0 0 42px rgba(76, 224, 255, 0.4);
+  }
+
+  .section-title {
+    color: var(--holo);
+    text-shadow:
+      -1px 0 0 rgba(255, 46, 126, 0.7),
+      1px 0 0 rgba(255, 46, 126, 0.7),
+      0 1px 0 rgba(255, 46, 126, 0.7),
+      0 0 14px rgba(255, 46, 126, 0.4),
+      0 0 32px rgba(139, 92, 255, 0.35);
+  }
+
+  /* ---- The one social ------------------------------------------------------
+     Instagram is the only account, so it gets a labelled pill in the magenta/
+     violet glow pair rather than an anonymous icon square in a row of five. */
+  .social-pill {
+    border: 1px solid color-mix(in srgb, var(--arcade) 45%, transparent);
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--arcade) 20%, transparent),
+      color-mix(in srgb, var(--violet) 15%, transparent)
+    );
+    color: #fff;
+    box-shadow: 0 0 22px color-mix(in srgb, var(--arcade) 16%, transparent);
+    transition: border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
+  }
+
+  .social-pill:hover {
+    border-color: var(--arcade);
+    box-shadow: 0 0 34px color-mix(in srgb, var(--arcade) 34%, transparent);
+    transform: translateY(-1px);
   }
 
   /* Faint CRT grid that dissolves as the page "evolves" (opacity set inline) */
@@ -150,15 +283,154 @@ body {
   }
 }
 
+/* ===========================================================================
+   SCROLL AFFORDANCES
+
+   Two of them, both built from the same idea: a segmented HUD meter rather
+   than a plain line. The nav bar reports how far down the page you are; the
+   hero cue invites the first scroll.
+   =========================================================================== */
+
+/* --- nav progress: an arcade power meter ---------------------------------- */
+.scroll-progress {
+  position: relative;
+  height: 5px;
+  overflow: hidden;
+  /* Bricked track, so the empty part of the meter reads as chrome and not as
+     a gap. The segment stripe is what makes the fill look built out of
+     pixels rather than painted. */
+  background-image: repeating-linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--brick) 26%, transparent) 0px,
+    color-mix(in srgb, var(--brick) 26%, transparent) 5px,
+    transparent 5px,
+    transparent 8px
+  );
+  background-color: rgb(var(--void-rgb) / 0.55);
+  box-shadow: inset 0 1px 0 rgb(0 0 0 / 0.5);
+}
+
+.scroll-progress-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background-image:
+    /* the same 8px segmentation, punched through as dark mortar */
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 5px,
+      rgb(0 0 0 / 0.55) 5px,
+      rgb(0 0 0 / 0.55) 8px
+    ),
+    linear-gradient(90deg, var(--brick) 0%, var(--arcade) 52%, var(--holo) 100%);
+  /* The gradient is sized to the whole bar, not to the fill, so the colour at
+     any point of the meter depends on where you are on the PAGE — the bar
+     reads brick early and cyan by the footer, exactly like the era strip. */
+  background-size: 8px 100%, 100vw 100%;
+  box-shadow: 0 0 14px color-mix(in srgb, var(--arcade) 45%, transparent);
+}
+
+/* The lit block riding the leading edge. Fixed width, so it stays a square
+   pixel at every scroll position. */
+.scroll-progress-cap {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 3px;
+  height: 100%;
+  background: #fff;
+  box-shadow:
+    0 0 8px var(--holo),
+    0 0 16px color-mix(in srgb, var(--holo) 70%, transparent);
+}
+
+/* --- hero cue: a block dropping down a rail -------------------------------- */
+.scroll-cue {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px 2px;
+  text-decoration: none;
+}
+
+.scroll-cue-label {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-indent: 0.3em; /* balances the trailing letter-space */
+  color: rgb(255 255 255 / 0.35);
+  transition: color 200ms ease;
+}
+
+.scroll-cue:hover .scroll-cue-label,
+.scroll-cue:focus-visible .scroll-cue-label {
+  color: var(--holo);
+}
+
+.scroll-cue-rail {
+  position: relative;
+  display: block;
+  width: 2px;
+  height: 40px;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--brick) 55%, transparent),
+    transparent
+  );
+}
+
+.scroll-cue-block {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 7px;
+  height: 7px;
+  margin-left: -3.5px;
+  background: var(--holo);
+  box-shadow: 0 0 10px var(--holo);
+  animation: scroll-cue-fall 2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+@keyframes scroll-cue-fall {
+  0%   { transform: translateY(0);    opacity: 0; }
+  18%  { opacity: 1; }
+  72%  { opacity: 1; }
+  100% { transform: translateY(33px); opacity: 0; }
+}
+
+/* Chevron at the foot of the rail — two borders, no glyph, so it stays sharp
+   at any zoom and needs no icon font. */
+.scroll-cue-chevron {
+  display: block;
+  width: 9px;
+  height: 9px;
+  margin-top: -4px;
+  border-right: 2px solid color-mix(in srgb, var(--holo) 70%, transparent);
+  border-bottom: 2px solid color-mix(in srgb, var(--holo) 70%, transparent);
+  transform: rotate(45deg);
+}
+
+/* Reduced motion: the global rule collapses every animation to ~0ms, which
+   would freeze the falling block on its opacity-0 first frame. Park it in the
+   middle of the rail, visible, instead. */
+@media (prefers-reduced-motion: reduce) {
+  .scroll-cue-block {
+    animation: none;
+    opacity: 1;
+    transform: translateY(16px);
+  }
+}
+
 /* Hero copy sits on top of a live canvas: guarantee contrast with a
    local scrim rather than dimming the whole scene. */
 .hero-scrim {
   background: radial-gradient(
       120% 90% at 50% 45%,
-      rgba(8, 9, 13, 0.86) 0%,
-      rgba(8, 9, 13, 0.62) 45%,
-      rgba(8, 9, 13, 0.15) 78%,
-      rgba(8, 9, 13, 0) 100%
+      rgb(var(--void-rgb) / 0.86) 0%,
+      rgb(var(--void-rgb) / 0.62) 45%,
+      rgb(var(--void-rgb) / 0.15) 78%,
+      rgb(var(--void-rgb) / 0) 100%
     );
 }
 
@@ -271,8 +543,8 @@ body {
   background: radial-gradient(
     100% 80% at 50% 50%,
     transparent 35%,
-    rgba(8, 9, 13, 0.55) 85%,
-    rgba(8, 9, 13, 0.8) 100%
+    rgb(var(--void-rgb) / 0.55) 85%,
+    rgb(var(--void-rgb) / 0.8) 100%
   );
 }
 
@@ -471,8 +743,10 @@ body.modal-open {
    rather than monochrome.
    =========================================================================== */
 
+/* --brick itself is declared in the base palette at the top of this file —
+   it is the site-wide chrome colour, not a timeline-only one. These three are
+   its shading, used only by the brick blocks and ground. */
 :root {
-  --brick: #c9502e;
   --brick-dark: #8f3620;
   --brick-light: #e8703f;
   --brick-mortar: #5c2314;
@@ -502,9 +776,9 @@ body.modal-open {
   inset: -40px -6% 0;
   background: radial-gradient(
     58% 42% at 50% 50%,
-    rgba(8, 9, 13, 0.82) 0%,
-    rgba(8, 9, 13, 0.66) 55%,
-    rgba(8, 9, 13, 0.2) 100%
+    rgb(var(--void-rgb) / 0.82) 0%,
+    rgb(var(--void-rgb) / 0.66) 55%,
+    rgb(var(--void-rgb) / 0.2) 100%
   );
   pointer-events: none;
   z-index: 0;
@@ -654,7 +928,7 @@ body.modal-open {
   top: 50%;
   min-width: 190px;
   max-width: 260px;
-  background: rgba(10, 10, 14, 0.92);
+  background: rgb(var(--void-rgb) / 0.92);
   border: 3px solid color-mix(in srgb, var(--step-accent) 60%, var(--brick-mortar));
   border-radius: 3px;
   box-shadow:

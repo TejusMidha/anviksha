@@ -31,23 +31,49 @@ const mono = JetBrains_Mono({
 const TITLE = `${FEST.name} — ${FEST.subtitle} | ${FEST.venue}`;
 const DESCRIPTION = `${FEST.theme}. ${FEST.themeSubtitle} ${FEST.date} at ${FEST.venue}.`;
 
+/* The deployed origin. Link-preview cards (app/opengraph-image.tsx) must be
+   advertised as ABSOLUTE URLs or WhatsApp, LinkedIn and most mail clients
+   will not fetch them — so set NEXT_PUBLIC_SITE_URL in the deploy
+   environment before sharing the link anywhere. Vercel's own VERCEL_URL is
+   used when it is present, and the localhost fallback only ever applies to
+   local development. */
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: TITLE,
     template: `%s | ${FEST.name}`,
   },
   description: DESCRIPTION,
+  alternates: { canonical: '/' },
+  keywords: [
+    'ANVIKSHA',
+    'ANVIKSHA 2026',
+    'The Epoch',
+    'techfest',
+    'STME',
+    'NMIMS Chandigarh',
+    'hackathon',
+    'e-sports',
+    'robotics',
+  ],
   openGraph: {
     title: `${FEST.name} — ${FEST.subtitle}`,
     description: `${FEST.theme} · ${FEST.date} · ${FEST.venue}`,
     type: 'website',
     siteName: FEST.name,
+    locale: 'en_IN',
+    url: '/',
   },
   twitter: {
     card: 'summary_large_image',
     title: `${FEST.name} — ${FEST.subtitle}`,
     description: `${FEST.theme} · ${FEST.date} · ${FEST.venue}`,
   },
+  robots: { index: true, follow: true },
 };
 
 export const viewport: Viewport = {

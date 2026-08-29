@@ -68,7 +68,7 @@ function Item({ item, index }: { item: FaqItem; index: number }) {
         </span>
       </summary>
 
-      <div className="border-t border-white/5 px-5 py-4 pl-[3.4rem]">
+      <div className="border-t border-[color:var(--chrome-line-soft)] px-5 py-4 pl-[3.4rem]">
         <p className="text-sm leading-relaxed text-white/65">{renderAnswer(item.a)}</p>
       </div>
     </details>
@@ -83,17 +83,22 @@ export default function Faq() {
     <section id="faq" className="era-3 relative mx-auto max-w-7xl px-4 py-24 sm:px-6">
       <EraBackdrop era={3} />
 
+      {/* Centred as a block: the header text is centred AND the accordion
+          column is `mx-auto`, so the stack sits on the section's axis rather
+          than hugging the left of a max-w-7xl row. The question/answer copy
+          inside each item stays left-aligned — centred prose is unreadable,
+          and only the block-level position needed changing. */}
       <div className="relative">
-        <header className="mb-10">
+        <header className="mb-10 text-center">
           <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-white/40">
             06 / Questions
           </p>
-          <h2 className="mt-3 font-pixel text-lg leading-[1.6] text-white sm:text-2xl">
-            BEFORE YOU <span className="era-text">REGISTER</span>
+          <h2 className="section-title mt-3 font-pixel text-lg leading-[1.6] sm:text-2xl">
+            BEFORE YOU REGISTER
           </h2>
         </header>
 
-        <div className="max-w-3xl space-y-3">
+        <div className="mx-auto max-w-3xl space-y-3 text-left">
           {items.map((item, i) => (
             <Item key={item.q} item={item} index={i} />
           ))}

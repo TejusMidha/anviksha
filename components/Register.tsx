@@ -1,7 +1,7 @@
-import { CONTACT, FEST } from '@/lib/content';
+import { FEST } from '@/lib/content';
 import EraBackdrop from './era/EraBackdrop';
 import { FooterSocials } from './Socials';
-import { CalendarIcon, PinIcon } from './Icons';
+import { CalendarIcon, ExternalIcon, PinIcon } from './Icons';
 
 export default function Register() {
   return (
@@ -25,23 +25,38 @@ export default function Register() {
           <h2 className="mx-auto mt-5 max-w-3xl font-pixel text-base leading-[1.7] text-white sm:text-2xl">
             THE NEXT ERA NEEDS
             <br />
-            <span className="text-holo [text-shadow:0_0_30px_rgba(76,224,255,0.5)]">PLAYERS</span>
+            <span className="brochure-title">PLAYERS</span>
           </h2>
 
           <p className="mx-auto mt-6 max-w-xl text-white/65">
-            Registration runs through Unstop — open any event to register for it directly. Pick as
-            many as your schedule allows.
+            Registration runs through Unstop. This button opens the fest-wide listing with every
+            event in one place — or open a single event to register for it directly. Pick as many
+            as your schedule allows.
           </p>
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
             <a
               href={FEST.registerUrl}
-              className="cta-amber focus-era tap-target px-8 py-4 font-pixel text-[10px] leading-none transition-transform hover:scale-[1.03]"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="cta-amber focus-era tap-target gap-2 px-8 py-4 font-pixel text-[10px] leading-none transition-transform hover:scale-[1.03]"
             >
               REGISTER NOW
+              <ExternalIcon size={13} />
             </a>
             <a
-              href={`mailto:${CONTACT.email}`}
+              href={FEST.brochureUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="cta-amber-ghost focus-era tap-target gap-2 px-8 py-4 font-pixel text-[10px] leading-none"
+            >
+              EVENT BROCHURES &amp; RULES
+              <ExternalIcon size={13} />
+            </a>
+            {/* No fest inbox exists, so this jumps to the footer's phone and
+                Instagram block rather than opening a mail client. */}
+            <a
+              href="#contact"
               className="focus-era tap-target border border-holo/40 px-8 py-4 font-pixel text-[10px] leading-none text-holo transition-colors hover:bg-holo/10"
               style={{ borderRadius: 'var(--era-radius)' }}
             >

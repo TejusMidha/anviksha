@@ -12,16 +12,17 @@
  * hint) staggers in, and the last of those lands at 640ms. Nothing critical
  * is ever mid-animation.
  *
- * The glitch-in on the wordmark is kept but is a *decorative overlay* on
- * already-visible text — the letters are readable at t=0 and the chromatic
- * fringe settles over ~900ms on top of them.
+ * The wordmark uses `.brochure-title` — the brochure's cyan fill with a
+ * magenta outline glow, the same treatment every section heading gets. The
+ * fringe is baked into the text-shadow rather than animated: the letters are
+ * fully readable at t=0.
  */
 
 import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { FEST, ALL_EVENTS, ERAS } from '@/lib/content';
 import Countdown from './Countdown';
-import { CalendarIcon, PinIcon } from './Icons';
+import { CalendarIcon, ExternalIcon, PinIcon } from './Icons';
 
 // Supporting elements only. Capped so the whole sequence is done well inside 1s.
 const reveal = (delay: number) => ({
@@ -59,17 +60,18 @@ export default function Hero() {
       >
         <motion.p
           {...reveal(0.05)}
-          className="mb-5 font-mono text-[10px] uppercase tracking-[0.4em] text-phosphor/80 sm:text-xs"
+          className="mb-5 font-mono text-[10px] uppercase tracking-[0.4em] text-holo/70 sm:text-xs"
         >
           {FEST.institute}
         </motion.p>
 
         {/* ---- Critical block: no entry animation, readable at first paint ---- */}
-        <h1 className="font-pixel text-[26px] leading-[1.4] text-white sm:text-5xl md:text-[3.4rem]">
-          <span className="crt-aberrate block text-phosphor">ANVIKSHA &apos;26</span>
-          <span className="mt-3 block text-holo [text-shadow:0_0_28px_rgba(76,224,255,0.45)]">
-            THE EPOCH
-          </span>
+        {/* The brochure's own wordmark treatment: cyan fill, magenta outline
+            glow. `.brochure-title` is the site-wide heading token — see
+            globals.css — so the hero and every section heading match. */}
+        <h1 className="font-pixel text-[26px] leading-[1.4] sm:text-5xl md:text-[3.4rem]">
+          <span className="brochure-title block">ANVIKSHA &apos;26</span>
+          <span className="brochure-title brochure-title-soft mt-3 block">THE EPOCH</span>
         </h1>
 
         <p className="mx-auto mt-7 max-w-2xl text-balance text-lg font-medium leading-snug text-white/90 sm:text-xl">
@@ -93,16 +95,33 @@ export default function Hero() {
           </span>
         </div>
 
+        {/* Action ladder, deliberately three deep and only one filled:
+            REGISTER NOW (filled amber, fest-wide Unstop listing) outranks
+            BROCHURES & RULES (outlined amber, shared Drive folder), which
+            outranks the plain on-page jump. Both external targets open in a
+            new tab so a half-filled form is never navigated away from. */}
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <a
             href={FEST.registerUrl}
-            className="cta-amber focus-era tap-target px-7 py-4 font-pixel text-[11px] leading-none transition-transform hover:scale-[1.03]"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="cta-amber focus-era tap-target gap-2 px-7 py-4 font-pixel text-[11px] leading-none transition-transform hover:scale-[1.03]"
           >
             REGISTER NOW
+            <ExternalIcon size={13} />
+          </a>
+          <a
+            href={FEST.brochureUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="cta-amber-ghost focus-era tap-target gap-2 px-7 py-4 font-pixel text-[11px] leading-none"
+          >
+            EVENT BROCHURES &amp; RULES
+            <ExternalIcon size={13} />
           </a>
           <a
             href="#eras"
-            className="arcade-cut focus-era tap-target border border-phosphor/40 px-7 py-4 font-pixel text-[11px] leading-none text-phosphor"
+            className="arcade-cut focus-era tap-target border border-[color:var(--chrome-line)] px-7 py-4 font-pixel text-[11px] leading-none text-white/75 transition-colors hover:border-holo hover:text-holo"
           >
             BROWSE EVENTS
           </a>
@@ -113,12 +132,19 @@ export default function Hero() {
           <Countdown />
         </motion.div>
 
-        <motion.p
-          {...reveal(0.64)}
-          className="mt-10 font-mono text-[10px] tracking-[0.3em] text-white/30"
-        >
-          SCROLL TO EVOLVE<span className="ml-1 animate-blink">_</span>
-        </motion.p>
+        {/* Scroll cue. Now a real control, not a caption: it is an anchor to
+            the next section, so the affordance it advertises actually works
+            when tapped. The block falls down the rail on a loop — the same
+            drop the Voyager makes onto a timeline brick. */}
+        <motion.div {...reveal(0.64)} className="mt-10 flex justify-center">
+          <a href="#about" aria-label="Scroll to About the fest" className="scroll-cue focus-era">
+            <span className="scroll-cue-label">SCROLL TO EVOLVE</span>
+            <span aria-hidden className="scroll-cue-rail">
+              <span className="scroll-cue-block" />
+            </span>
+            <span aria-hidden className="scroll-cue-chevron" />
+          </a>
+        </motion.div>
       </motion.div>
     </section>
   );

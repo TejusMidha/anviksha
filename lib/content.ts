@@ -117,16 +117,24 @@ export const FEST = {
   pastEditions: ['2024', '2025'],
   cadence: 'Single-day',
 
-  /* NEEDS DATA: master Unstop URL for the fest. Falls back to the on-page
-     registration section until supplied. */
-  registerUrl: '#register',
+  /** Fest-wide Unstop listing. This is the GENERAL "Register Now" target —
+      nav CTA, hero, the closing insert-coin button. Individual events use
+      their own `unstopUrl` instead; never point an event card here. */
+  registerUrl:
+    'https://unstop.com/college-fests/anviksha-the-epoch-2026-narsee-monjee-institute-of-management-studies-nmims-chandigarh-507675',
+
+  /** Google Drive folder holding every event brochure and rule sheet.
+      SHARED, NOT PER-EVENT: the root folder is the only Drive link supplied,
+      so every event's "More Details" button points here too. Drive folder IDs
+      are opaque and cannot be derived from an event name, so per-event deep
+      links stay unwired until the 21 individual URLs land. Add an optional
+      `brochureUrl` to AnvikshaEvent at that point and the detail view will
+      prefer it — see EventDetail. */
+  brochureUrl: 'https://drive.google.com/drive/u/5/folders/1W2LqWQBN0L4S7ENPJ15eJ8pTJpDIYPY5',
 
   brief:
     'One day. Five eras. ANVIKSHA 26 traces the arc of play from the phosphor glow of the first arcade cabinet to worlds generated on the fly by machines — and asks what engineers build next.',
 } as const;
-
-/** Referenced by both CONTACT and the FAQ copy — declared once, above both. */
-const CONTACT_EMAIL = 'anviksha@nmims.edu.in';
 
 export const ERAS: Era[] = [
   {
@@ -148,6 +156,8 @@ export const ERAS: Era[] = [
           'Crack layered challenges across crypto, forensics and web exploitation. Every flag planted is points on the board.',
         scene: 'captureTheFlag',
         format: 'Teams of 3 · 120 min',
+        unstopUrl:
+          'https://unstop.com/p/capture-the-flag-operation-zero-trace-duplicate-anviksha-the-epoch-2026-narsee-monjee-institute-of-management-studies--1745175',
       }),
       ev({
         id: 'escape-the-server',
@@ -157,6 +167,8 @@ export const ERAS: Era[] = [
           'A chained set of systems puzzles — logs, ports, permissions. Solve the sequence before the vault seals for good.',
         scene: 'escapeTheServer',
         format: 'Teams of 4 · 60 min',
+        unstopUrl:
+          'https://unstop.com/p/escape-the-server-anviksha-the-epoch-2026-narsee-monjee-institute-of-management-studies-nmims-chandigarh-1745480',
       }),
       ev({
         id: 'bridge-wars',
@@ -166,6 +178,8 @@ export const ERAS: Era[] = [
           'Design, build and test a truss that survives the load run. Least material, most strength, wins.',
         scene: 'bridgeWars',
         format: 'Teams of 3 · 90 min',
+        unstopUrl:
+          'https://unstop.com/p/bridge-wars-anviksha-the-epoch-2026-narsee-monjee-institute-of-management-studies-nmims-chandigarh-1745431',
       }),
       ev({
         id: 'algorithm-auction',
@@ -175,6 +189,8 @@ export const ERAS: Era[] = [
           'Spend a virtual purse on algorithm fragments, then assemble them into the fastest working solution. Bad bids cost you complexity.',
         scene: 'algorithmAuction',
         format: 'Teams of 2 · 75 min',
+        unstopUrl:
+          'https://unstop.com/p/algorithm-auction-anviksha-the-epoch-2026-narsee-monjee-institute-of-management-studies-nmims-chandigarh-1745434',
       }),
       ev({
         id: 'ai-whisperer',
@@ -184,6 +200,8 @@ export const ERAS: Era[] = [
           'Given a target output, steer the model there in the fewest tokens. Precision beats verbosity every round.',
         scene: 'aiWhisperer',
         format: 'Solo · 45 min',
+        unstopUrl:
+          'https://unstop.com/events/ai-whisperer-anviksha-the-epoch-2026-narsee-monjee-institute-of-management-studies-nmims-chandigarh-1745436',
       }),
       ev({
         id: 'tech-minute-to-win-it',
@@ -193,6 +211,8 @@ export const ERAS: Era[] = [
           'Rapid-fire micro-challenges: debug it, wire it, name it, ship it. The clock is the only judge that matters.',
         scene: 'techMinute',
         format: 'Solo · rolling heats',
+        unstopUrl:
+          'https://unstop.com/p/tech-minute-to-win-it-anviksha-the-epoch-2026-narsee-monjee-institute-of-management-studies-nmims-chandigarh-1745437',
       }),
     ],
   },
@@ -214,6 +234,8 @@ export const ERAS: Era[] = [
         blurb: 'Standard competitive map pool, single-elimination bracket, BO1 until the semis.',
         scene: 'valorant',
         format: 'Teams of 5 · bracket',
+        unstopUrl:
+          'https://unstop.com/p/valorant-anviksha-the-epoch-2026-narsee-monjee-institute-of-management-studies-nmims-chandigarh-1745176',
       }),
       ev({
         id: 'fifa',
@@ -222,6 +244,8 @@ export const ERAS: Era[] = [
         blurb: 'Six-minute halves, no custom squads, golden goal in the knockouts.',
         scene: 'fifa',
         format: 'Solo · bracket',
+        unstopUrl:
+          'https://unstop.com/p/fifa-25-anviksha-the-epoch-2026-narsee-monjee-institute-of-management-studies-nmims-chandigarh-1745179',
       }),
       ev({
         id: 'mortal-kombat',
@@ -230,6 +254,8 @@ export const ERAS: Era[] = [
         blurb: 'Blind character select, first to two rounds, winner stays on the stick.',
         scene: 'mortalKombat',
         format: 'Solo · bracket',
+        unstopUrl:
+          'https://unstop.com/p/mortal-kombat-1-anviksha-the-epoch-2026-narsee-monjee-institute-of-management-studies-nmims-chandigarh-1745184',
       }),
       ev({
         id: 'tekken',
@@ -238,6 +264,8 @@ export const ERAS: Era[] = [
         blurb: 'Classic iron-fist rules. Punish the whiff, close the round, take the set.',
         scene: 'tekken',
         format: 'Solo · bracket',
+        unstopUrl:
+          'https://unstop.com/p/tekken-8-anviksha-the-epoch-2026-narsee-monjee-institute-of-management-studies-nmims-chandigarh-1745181',
       }),
     ],
   },
@@ -260,6 +288,8 @@ export const ERAS: Era[] = [
           'Audio rounds pulled from game scores, startup chimes and dial-up nostalgia. Buzz first, sing later.',
         scene: 'techTunes',
         format: 'Teams of 3 · 4 rounds',
+        unstopUrl:
+          'https://unstop.com/p/tech-tunes-anviksha-the-epoch-2026-narsee-monjee-institute-of-management-studies-nmims-chandigarh-1745121',
       }),
       ev({
         id: 'the-parallel-protocol',
@@ -269,6 +299,8 @@ export const ERAS: Era[] = [
           'Paired teams solve mirrored halves of the same puzzle without seeing each other’s board.',
         scene: 'parallelProtocol',
         format: 'Teams of 4 · 60 min',
+        unstopUrl:
+          'https://unstop.com/p/the-parallel-protocol-duplicate-anviksha-the-epoch-2026-narsee-monjee-institute-of-management-studies-nmims-chandigarh-1745173',
       }),
       ev({
         id: 'nexus-negotiator',
@@ -278,6 +310,8 @@ export const ERAS: Era[] = [
           'A live negotiation ladder — alliances, trades and betrayals, scored on outcome and nerve.',
         scene: 'nexusNegotiator',
         format: 'Solo · 3 rounds',
+        unstopUrl:
+          'https://unstop.com/p/nexus-negotiator-anviksha-the-epoch-2026-narsee-monjee-institute-of-management-studies-nmims-chandigarh-1745142',
       }),
       ev({
         id: 'array-pata-hai',
@@ -286,6 +320,8 @@ export const ERAS: Era[] = [
         blurb: 'Act out the concept, guess the term, keep the streak alive down the row.',
         scene: 'arrayPataHai',
         format: 'Teams of 4 · 30 min',
+        unstopUrl:
+          'https://unstop.com/p/array-pata-hai-anviksha-the-epoch-2026-narsee-monjee-institute-of-management-studies-nmims-chandigarh-1745167',
       }),
       ev({
         id: 'secret-seekers',
@@ -295,6 +331,8 @@ export const ERAS: Era[] = [
           'Chained clues across STME. Every lock has a key hidden in the last riddle you solved.',
         scene: 'secretSeekers',
         format: 'Teams of 4 · 90 min',
+        unstopUrl:
+          'https://unstop.com/p/secret-seekers-anviksha-the-epoch-2026-narsee-monjee-institute-of-management-studies-nmims-chandigarh-1745169',
       }),
     ],
   },
@@ -317,6 +355,8 @@ export const ERAS: Era[] = [
           'Wired or wireless bots, two halves, one ball. Traction and control beat raw torque.',
         scene: 'roboSoccer',
         format: 'Teams of 4 · bracket',
+        unstopUrl:
+          'https://unstop.com/p/robo-soccer-anviksha-the-epoch-2026-narsee-monjee-institute-of-management-studies-nmims-chandigarh-1745193',
       }),
       ev({
         id: 'robo-race',
@@ -325,6 +365,8 @@ export const ERAS: Era[] = [
         blurb: 'Ramps, gravel, hairpins. Fastest clean run through the track takes the podium.',
         scene: 'roboRace',
         format: 'Teams of 4 · timed runs',
+        unstopUrl:
+          'https://unstop.com/p/robo-race-anviksha-the-epoch-2026-narsee-monjee-institute-of-management-studies-nmims-chandigarh-1745186',
       }),
       ev({
         id: 'through-the-lens',
@@ -334,6 +376,8 @@ export const ERAS: Era[] = [
           'A shot list drops at the start of the day. Fill it before the sun does, submit unedited.',
         scene: 'throughTheLens',
         format: 'Solo · all day',
+        unstopUrl:
+          'https://unstop.com/events/side-questing-sidequest-through-the-lens-anviksha-the-epoch-2026-narsee-monjee-institute-of-management-studies-nm-1745444',
       }),
       ev({
         id: 'quest-to-cinema',
@@ -342,6 +386,8 @@ export const ERAS: Era[] = [
         blurb: 'Prompt, shoot, cut and screen within the day. Sound design counts.',
         scene: 'questToCinema',
         format: 'Teams of 3 · all day',
+        unstopUrl:
+          'https://unstop.com/events/quest-to-cinema-anviksha-the-epoch-2026-narsee-monjee-institute-of-management-studies-nmims-chandigarh-1745441',
       }),
       ev({
         id: 'interface-quest',
@@ -351,6 +397,8 @@ export const ERAS: Era[] = [
           'Take a broken flow and redesign it for a real constraint. Defend it in a two-minute crit.',
         scene: 'interfaceQuest',
         format: 'Solo or duo · 120 min',
+        unstopUrl:
+          'https://unstop.com/events/interface-quest-anviksha-the-epoch-2026-narsee-monjee-institute-of-management-studies-nmims-chandigarh-1745442',
       }),
     ],
   },
@@ -373,6 +421,8 @@ export const ERAS: Era[] = [
           'Theme drops at 09:30. Ship something playable by 17:00 — engine, art and AI tooling all fair game.',
         scene: 'gameAthon',
         format: 'Teams of 4 · 7 hours',
+        unstopUrl:
+          'https://unstop.com/hackathons/game-athon-anviksha-the-epoch-2026-narsee-monjee-institute-of-management-studies-nmims-chandigarh-1745439',
       }),
     ],
   },
@@ -519,35 +569,59 @@ export function headlinePrizeTotal(): number | null {
 /* ---------------------------------------------------------------------------
    COORDINATORS
 
-   NEEDS DATA: the real coordinator list has NOT landed in this file. It is
-   empty on purpose — the Credits section renders nothing rather than a grid
-   of "??" cards. Add entries and the section appears, grouped by `group` in
-   the order the groups first occur.
+   The authoritative student list, grouped by department in the order the
+   groups first occur. NO PHOTOS have been supplied for anyone, so the cards
+   render name-only — there is no avatar slot to leave empty.
 
    Faculty: left out entirely until names are confirmed. Adding a single row
    with group 'Faculty' is all that is needed to bring that block back.
    --------------------------------------------------------------------------- */
 export interface Coordinator {
   name: string;
-  role: string;
+  /** Department. Doubles as the card's role — the group heading names it. */
   group: string;
   /** Optional — rendered as a mailto/tel chip when present. */
   contact?: string;
 }
 
-export const COORDINATORS: Coordinator[] = [
-  // e.g. { name: 'A. Sharma', role: 'Fest Head', group: 'Core' },
+/** Written as `department: [names]` and flattened, so the source stays
+    readable and a name can never drift away from its department. */
+const COORDINATOR_GROUPS: [string, string[]][] = [
+  ['Chief Coordinator', ['Armaan Singh Sandhu', 'Konark Jetly', 'Mannat']],
+  ['Sponsorships', ['Madhav', 'Harshit', 'Aaravdeep', 'Raghav', 'Devanshu']],
+  ['Technical', ['Pulkit', 'Soumya']],
+  ['Non-Technical', ['Sia', 'Himanshi', 'Harkirat']],
+  ['Registration', ['Armaan Thakur', 'Muskaan']],
+  ['Hospitality', ['Shreya', 'Jayesh']],
+  ['Designing', ['Gauri', 'Vanika']],
+  ['Discipline Committee', ['Vinayak', 'Saksham']],
+  ['E-Sports', ['Palaksh', 'Devanshu']],
+  ['Photography', ['Gauri', 'Konark']],
+  ['Robo Club', ['Rishabh', 'Vinayak', 'Raghav Gandhi', 'Krish']],
+  ['Marketing', ['Siddhant', 'Mannat', 'Krrish']],
+  ['Game-Athon', ['Tejus', 'Aaryamann']],
+  ['Decoration', ['Reet']],
 ];
+
+export const COORDINATORS: Coordinator[] = COORDINATOR_GROUPS.flatMap(([group, names]) =>
+  names.map((name) => ({ name, group })),
+);
 
 /* ---------------------------------------------------------------------------
    FAQ
 
-   Answers containing "[NEED:" are unconfirmed policy and render as a visibly
-   flagged open question rather than an invented answer. Replace the bracket
-   with the real answer and set `resolved: true`. Flip SHOW_UNRESOLVED_FAQS to
-   false to hide every unresolved entry instead of publishing the brackets.
+   SHOW_UNRESOLVED_FAQS is FALSE, which is the correct setting for a live,
+   publicly-shared site: an entry with `resolved: false` is hidden entirely
+   rather than published. A "[NEED: …]" bracket is an internal note to whoever
+   is filling this file in — it must never reach a visitor, and with this flag
+   off it cannot.
+
+   Two answers below defer to the Unstop listing on purpose. Eligibility and
+   fees are set per event and shown at the point of registration; neither is
+   asserted here, because neither has been confirmed to this file. If a
+   fest-wide rule is confirmed later, state it directly instead.
    --------------------------------------------------------------------------- */
-export const SHOW_UNRESOLVED_FAQS = true;
+export const SHOW_UNRESOLVED_FAQS = false;
 
 export interface Faq {
   q: string;
@@ -558,18 +632,18 @@ export interface Faq {
 export const FAQS: Faq[] = [
   {
     q: 'How do I register?',
-    a: 'Registration runs through Unstop. Open any event from the Events section and use its “Register on Unstop” button — that takes you straight to the listing for that event. [NEED: confirm whether there is one fest-wide Unstop listing or a separate listing per event, and the master URL.]',
-    resolved: false,
+    a: 'Registration runs through Unstop, and there are two ways in. “Register Now” anywhere on this site opens the fest-wide ANVIKSHA ’26 listing, where every event is in one place. Or open a single event from the Events section and use its “Register on Unstop” button, which goes straight to that event’s own listing. Each event’s brochure and full rule sheet are in the shared Drive folder linked from “Event Brochures & Rules”.',
+    resolved: true,
   },
   {
     q: 'Who can attend? Is it open to students from other colleges?',
-    a: '[NEED: confirm eligibility — is ANVIKSHA open to all colleges, to NMIMS campuses only, or to STME students only? Also confirm whether non-participants may attend as spectators.]',
-    resolved: false,
+    a: 'Eligibility is set per event and is stated on that event’s Unstop listing — open the event from the Events section and check its listing before you register. If anything there is unclear, message us on Instagram or call one of the coordinators listed in the footer, and we will confirm.',
+    resolved: true,
   },
   {
     q: 'Is there a registration fee?',
-    a: '[NEED: confirm fee amount — a flat fest pass versus a per-event fee, and whether STME students are exempt.]',
-    resolved: false,
+    a: 'Any fee is shown on the event’s Unstop listing at the point of registration, so you will see it before you commit. Open the event you want from the Events section to check.',
+    resolved: true,
   },
   {
     q: 'What is the team size?',
@@ -578,8 +652,8 @@ export const FAQS: Faq[] = [
   },
   {
     q: 'Can one person or team enter more than one event?',
-    a: 'Yes. The fest is a single day and the run of show is built so most tracks do not collide — but check the schedule before committing to two events, because a few slots do overlap and the all-day formats (Game-Athon, the photography sidequest, Quest to Cinema) run across the whole day. [NEED: confirm whether there is a cap on how many events one participant may register for.]',
-    resolved: false,
+    a: 'Yes. The fest is a single day and the run of show is built so most tracks do not collide — but check the schedule before committing to two events, because a few slots do overlap and the all-day formats (Game-Athon, the photography sidequest, Quest to Cinema) run across the whole day.',
+    resolved: true,
   },
   {
     q: 'Where is it, and how do I find my venue?',
@@ -588,12 +662,12 @@ export const FAQS: Faq[] = [
   },
   {
     q: 'What should I bring?',
-    a: 'A college ID, your registration confirmation, and a laptop with charger if your event needs one — the technical track and Game-Athon assume you are on your own machine. Robotics teams bring their own bot and spares. [NEED: confirm whether power and campus Wi-Fi are guaranteed at every venue, and whether robotics teams may charge batteries on site.]',
-    resolved: false,
+    a: 'A college ID, your registration confirmation, and a laptop with charger if your event needs one — the technical track and Game-Athon assume you are on your own machine. Robotics teams bring their own bot and spares.',
+    resolved: true,
   },
   {
     q: 'Who do I contact for help?',
-    a: 'Email the core team at ' + CONTACT_EMAIL + ', or reach us on Instagram — DMs are answered fastest on the day itself. On campus, the registration desk in the Main Foyer handles anything urgent.',
+    a: 'Instagram is the fastest route — DMs are answered quickest on the day itself. The three coordinator numbers in the footer are there for anything urgent, and on campus the registration desk in the Main Foyer handles it.',
     resolved: true,
   },
 ];
@@ -628,16 +702,40 @@ export const SPONSORS: Sponsor[] = [];
 /* ---------------------------------------------------------------------------
    CONTACT & SOCIAL
 
-   NEEDS DATA: every href below marked "-url-needed" is a deliberate, greppable
-   placeholder. A social entry only renders as a live link once its href no
-   longer contains that marker, so nothing broken ships in the meantime.
+   Instagram is the only social ANVIKSHA runs, so it is the only one listed —
+   there is no LinkedIn/YouTube/Unstop handle to link, and an entry here that
+   pointed nowhere would be worse than its absence.
+
+   An href still carrying the greppable "-url-needed" marker renders as a
+   disabled chip rather than a live link, so nothing broken can ship.
    Grep: rg -- "-url-needed"
    --------------------------------------------------------------------------- */
+export interface ContactPerson {
+  name: string;
+  /** E.164, digits only after the +. `tel:` href is derived from this. */
+  phone: string;
+}
+
+/** Phone contacts from the official contact card. Rendered in the footer. */
+export const CONTACT_PEOPLE: ContactPerson[] = [
+  { name: 'Konark Jetly', phone: '+916284892678' },
+  { name: 'Armaan Singh Sandhu', phone: '+919815433450' },
+  { name: 'Mannat Walia', phone: '+919988320006' },
+];
+
+/** "+916284892678" -> "+91 62848 92678". Display only; href uses the raw. */
+export function formatPhone(phone: string): string {
+  const m = phone.match(/^\+(\d{2})(\d{5})(\d{5})$/);
+  return m ? `+${m[1]} ${m[2]} ${m[3]}` : phone;
+}
+
+/* NO FEST EMAIL EXISTS. There is no anviksha@ inbox, so none is published —
+   a mailto: that bounces is worse than no address at all. The contact routes
+   are Instagram and the three coordinator phone numbers above. If an inbox is
+   set up later, add `email` here and the footer will render it. */
 export const CONTACT = {
-  email: CONTACT_EMAIL,
-  /* NEEDS DATA: real handle, and phone number if there is a public one. */
-  instagramHandle: null as string | null,
-  phone: null as string | null,
+  instagramHandle: '@anviksha.nmimschd',
+  people: CONTACT_PEOPLE,
 } as const;
 
 export type SocialKey = 'instagram' | 'linkedin' | 'youtube' | 'unstop' | 'email';
@@ -646,16 +744,20 @@ export interface Social {
   key: SocialKey;
   label: string;
   href: string;
+  /** Shown next to the icon where the link is given room to breathe. */
+  handle?: string;
   /** Pinned into the nav bar, not just the footer. */
   primary?: boolean;
 }
 
 export const SOCIALS: Social[] = [
-  { key: 'instagram', label: 'Instagram', href: '#instagram-url-needed', primary: true },
-  { key: 'linkedin', label: 'LinkedIn', href: '#linkedin-url-needed' },
-  { key: 'youtube', label: 'YouTube', href: '#youtube-url-needed' },
-  { key: 'unstop', label: 'Unstop', href: '#unstop-url-needed' },
-  { key: 'email', label: 'Email', href: 'mailto:' + CONTACT_EMAIL },
+  {
+    key: 'instagram',
+    label: 'Instagram',
+    href: 'https://www.instagram.com/anviksha.nmimschd?utm_source=qr',
+    handle: '@anviksha.nmimschd',
+    primary: true,
+  },
 ];
 
 /** True while an href is still a marked placeholder. */

@@ -16,6 +16,8 @@ import {
   eventDuration,
   eventScheduleRows,
   eventVenue,
+  FEST,
+  SCHEDULE_IS_PLACEHOLDER,
   PRIZE_POOL,
   type AnvikshaEvent,
   type Era,
@@ -96,7 +98,7 @@ export default function EventDetail({
         <EventCanvas scene={event.scene} active={inView} reduced={reduced} tier={tier} />
       </div>
 
-      <div className="border-t border-white/5 px-5 py-6 sm:px-8 sm:py-8">
+      <div className="border-t border-[color:var(--chrome-line-soft)] px-5 py-6 sm:px-8 sm:py-8">
         <div className="flex flex-wrap items-center gap-2">
           <span className="era-chip px-2.5 py-1 font-pixel text-[8px] leading-none">
             {era.label}
@@ -134,7 +136,10 @@ export default function EventDetail({
           )}
 
           {venue && (
-            <Fact icon={<PinIcon size={17} />} label="Venue">
+            <Fact
+              icon={<PinIcon size={17} />}
+              label={SCHEDULE_IS_PLACEHOLDER ? 'Venue · indicative' : 'Venue'}
+            >
               {venue}
             </Fact>
           )}
@@ -153,7 +158,7 @@ export default function EventDetail({
         {rows.length > 0 && (
           <div className="mt-8">
             <h2 className="font-mono text-[10px] uppercase tracking-[0.25em] text-white/40">
-              When it runs
+              When it runs{SCHEDULE_IS_PLACEHOLDER && ' · indicative'}
             </h2>
             <ul className="mt-3 space-y-2">
               {rows.map((r) => (
@@ -190,28 +195,41 @@ export default function EventDetail({
           </div>
         )}
 
-        {/* --- CTA. Only a real Unstop URL renders a button. ---------------- */}
+        {/* --- CTA ---------------------------------------------------------
+            REGISTER ON UNSTOP goes to this event's OWN Unstop listing.
+            MORE DETAILS goes to the SHARED Drive folder of brochures and rule
+            sheets — the same URL for all 21 events, because only the root
+            folder link exists. Drive IDs are opaque and cannot be derived from
+            an event name, so no per-event deep link is guessed here. The day
+            per-event URLs land, add `brochureUrl` to AnvikshaEvent and swap the
+            href below to `event.brochureUrl ?? FEST.brochureUrl`. */}
         <div className="mt-9 flex flex-wrap items-center gap-3">
-          {event.unstopUrl ? (
-            <a
-              href={event.unstopUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="cta-amber focus-era tap-target inline-flex gap-2 px-6 py-4 font-pixel text-[10px] leading-none transition-transform hover:scale-[1.03]"
-            >
-              REGISTER ON UNSTOP
-              <ExternalIcon size={14} />
-            </a>
-          ) : (
-            <a
-              href="/#register"
-              className="focus-era tap-target inline-flex items-center gap-2 border border-[color:var(--era-color)]/40 px-6 py-4 font-pixel text-[10px] leading-none text-[color:var(--era-color)] transition-colors hover:bg-[color-mix(in_srgb,var(--era-color)_12%,transparent)]"
-              style={{ borderRadius: 'var(--era-radius)' }}
-            >
-              REGISTRATION INFO
-            </a>
-          )}
+          <a
+            href={event.unstopUrl ?? FEST.registerUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="cta-amber focus-era tap-target inline-flex gap-2 px-6 py-4 font-pixel text-[10px] leading-none transition-transform hover:scale-[1.03]"
+          >
+            REGISTER ON UNSTOP
+            <ExternalIcon size={14} />
+          </a>
+
+          <a
+            href={FEST.brochureUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Opens the shared Drive folder of event brochures and rule sheets"
+            className="focus-era tap-target inline-flex gap-2 border border-[color:var(--era-color)]/45 px-6 py-4 font-pixel text-[10px] leading-none text-[color:var(--era-color)] transition-colors hover:bg-[color-mix(in_srgb,var(--era-color)_12%,transparent)]"
+            style={{ borderRadius: 'var(--era-radius)' }}
+          >
+            MORE DETAILS
+            <ExternalIcon size={14} />
+          </a>
         </div>
+
+        <p className="mt-3 font-mono text-[10px] leading-relaxed text-white/35">
+          More Details opens the shared brochures &amp; rules folder for every event.
+        </p>
       </div>
     </div>
   );
