@@ -10,8 +10,6 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import {
   C,
-  GRADIENT_POINTS_FRAG,
-  GRADIENT_POINTS_VERT,
   SceneProps,
   flicker,
   makeRng,
@@ -431,70 +429,6 @@ export function AlgorithmAuction({ tier, p }: SceneProps) {
           depthWrite={false}
         />
       </lineSegments>
-    </group>
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/* AI Whisperer                                                                */
-/* Green-to-cyan gradient point cloud (gradient runs along local Y, so the     */
-/* head reads as two-tone rather than one hue). The moment: brief glitch       */
-/* pulses shear horizontal bands of the head sideways, twice per 5s loop.      */
-/* -------------------------------------------------------------------------- */
-export function AIWhisperer({ tier, p }: SceneProps) {
-  const count = seg(tier, 900, 420);
-  const group = useRef<THREE.Group>(null);
-
-  const geometry = useMemo(() => {
-    const rng = makeRng(9001);
-    const arr = new Float32Array(count * 3);
-    for (let i = 0; i < count; i++) {
-      const u = rng() * 2 - 1;
-      const th = rng() * Math.PI * 2;
-      const r = Math.sqrt(1 - u * u);
-      const x = r * Math.cos(th);
-      const y = u;
-      const z = r * Math.sin(th);
-      const jaw = y < -0.25 ? 0.82 : 1;
-      arr[i * 3] = x * 0.82 * jaw;
-      arr[i * 3 + 1] = y * 1.08;
-      arr[i * 3 + 2] = z * 0.88 + (z > 0.55 ? 0.14 : 0) * (1 - Math.abs(y));
-    }
-    const g = new THREE.BufferGeometry();
-    g.setAttribute('position', new THREE.BufferAttribute(arr, 3));
-    return g;
-  }, [count]);
-
-  const material = useMemo(
-    () =>
-      new THREE.ShaderMaterial({
-        vertexShader: GRADIENT_POINTS_VERT,
-        fragmentShader: GRADIENT_POINTS_FRAG,
-        transparent: true,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending,
-        uniforms: {
-          uTime: { value: 0 },
-          uSize: { value: tier === 'low' ? 0.055 : 0.045 },
-          uGlitch: { value: 0 },
-          uColorA: { value: new THREE.Color(p.base) },
-          uColorB: { value: new THREE.Color(p.accent) },
-        },
-      }),
-    [tier, p.base, p.accent],
-  );
-
-  useFrame(({ clock }) => {
-    const t = clock.elapsedTime;
-    material.uniforms.uTime.value = t;
-    // Two short bursts per 5s loop, offset so the rhythm feels irregular.
-    material.uniforms.uGlitch.value = (flicker(t, 5, 0.05) + flicker(t + 1.7, 5, 0.03)) * 0.32;
-    if (group.current) group.current.rotation.y = Math.sin(t * 0.25) * 0.6;
-  });
-
-  return (
-    <group ref={group} scale={1.25}>
-      <points geometry={geometry} material={material} />
     </group>
   );
 }

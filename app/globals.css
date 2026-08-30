@@ -177,6 +177,16 @@ body {
     color: var(--era-color);
   }
 
+  /* Light plate for dark-on-light partner artwork. The Unstop lockup is a
+     navy wordmark on transparency, which is invisible against the near-black
+     page — this is the same rounded light pill the NMIMS lockup already has
+     baked into its own PNG, so the two marks read as a matched set rather than
+     one floating and one plated. */
+  .brand-plate {
+    background: rgba(244, 246, 251, 0.94);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+  }
+
   .terminal {
     background: rgb(var(--void-rgb) / 0.86);
     border: 1px solid rgba(57, 255, 106, 0.28);
@@ -926,8 +936,10 @@ body.modal-open {
 .tl-hud {
   position: absolute;
   top: 50%;
-  min-width: 190px;
-  max-width: 260px;
+  /* Widened from 190px when the confirmed schedule brought time RANGES:
+     "10:30-16:30" is more than twice the width of "10:30". */
+  min-width: 212px;
+  max-width: 272px;
   background: rgb(var(--void-rgb) / 0.92);
   border: 3px solid color-mix(in srgb, var(--step-accent) 60%, var(--brick-mortar));
   border-radius: 3px;
@@ -962,6 +974,12 @@ body.modal-open {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  /* If the range and the track label cannot share a line — which only happens
+     at the narrow mobile max-width — the TRACK drops to its own line. The time
+     itself must never break, or "10:30-16:30" splits across two lines mid
+     range, which reads as two separate times. */
+  flex-wrap: wrap;
+  row-gap: 3px;
   gap: 8px;
   padding: 5px 8px;
   background: color-mix(in srgb, var(--step-color) 40%, rgba(0, 0, 0, 0.75));
@@ -972,12 +990,14 @@ body.modal-open {
   font-family: var(--font-pixel), monospace;
   font-size: 9px;
   line-height: 1;
+  white-space: nowrap;
   color: var(--amber);
 }
 
 .tl-hud-track {
   font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 8px;
+  white-space: nowrap;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: color-mix(in srgb, var(--step-hot) 85%, white);
@@ -1008,6 +1028,7 @@ a.tl-hud-name:hover {
   font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 10px;
   letter-spacing: 0.1em;
+  overflow-wrap: anywhere;
   color: rgba(255, 255, 255, 0.42);
 }
 

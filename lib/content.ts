@@ -20,7 +20,6 @@ export type SceneKey =
   | 'escapeTheServer'
   | 'bridgeWars'
   | 'algorithmAuction'
-  | 'aiWhisperer'
   | 'techMinute'
   | 'techTunes'
   | 'parallelProtocol'
@@ -132,6 +131,13 @@ export const FEST = {
       prefer it — see EventDetail. */
   brochureUrl: 'https://drive.google.com/drive/u/5/folders/1W2LqWQBN0L4S7ENPJ15eJ8pTJpDIYPY5',
 
+  /** Registration partner. The "Powered by Unstop" tag credits the partner and
+      therefore points at unstop.com, NOT at the fest listing — `registerUrl`
+      above is the listing, and the two must not be conflated: a credit that
+      silently became a fourth Register CTA would be a dark pattern. */
+  partner: 'Unstop',
+  partnerUnstopUrl: 'https://unstop.com',
+
   brief:
     'One day. Five eras. ANVIKSHA 26 traces the arc of play from the phosphor glow of the first arcade cabinet to worlds generated on the fly by machines — and asks what engineers build next.',
 } as const;
@@ -191,17 +197,6 @@ export const ERAS: Era[] = [
         format: 'Teams of 2 · 75 min',
         unstopUrl:
           'https://unstop.com/p/algorithm-auction-anviksha-the-epoch-2026-narsee-monjee-institute-of-management-studies-nmims-chandigarh-1745434',
-      }),
-      ev({
-        id: 'ai-whisperer',
-        name: 'AI Whisperer',
-        tagline: 'Prompt-craft as a competitive sport',
-        blurb:
-          'Given a target output, steer the model there in the fewest tokens. Precision beats verbosity every round.',
-        scene: 'aiWhisperer',
-        format: 'Solo · 45 min',
-        unstopUrl:
-          'https://unstop.com/events/ai-whisperer-anviksha-the-epoch-2026-narsee-monjee-institute-of-management-studies-nmims-chandigarh-1745436',
       }),
       ev({
         id: 'tech-minute-to-win-it',
@@ -441,15 +436,31 @@ export function eventBySlug(slug: string): AnvikshaEvent | undefined {
 /* ---------------------------------------------------------------------------
    RUN OF SHOW
 
-   ⚠ STILL PLACEHOLDER. These 20 rows were authored to the correct shape as
-   scaffolding; the real run-of-show has NOT landed in this file yet. Replace
-   the array below, then flip SCHEDULE_IS_PLACEHOLDER to false — that single
-   boolean removes the on-page warning banner. Nothing else needs to change.
+   PARTLY CONFIRMED. The twelve event rows marked "confirmed" below carry the
+   real windows supplied by the committee — Non-Technical, Technical and Robo
+   Club. Everything else (registration, inauguration, the lunch break, the
+   e-sports bracket, the media slots and the closing ceremony) is still the
+   original scaffolding, which is why SCHEDULE_IS_PLACEHOLDER stays true and
+   the on-page notice stays up. Flip it to false once those rows land too.
+
+   VENUES ARE NOT CONFIRMED for any row. The rooms below are scaffolding, and
+   the three rows added with the confirmed timings (The Parallel Protocol,
+   Array Pata Hai, Tech Minute to Win It) were given rooms that do not collide
+   with anything else running at the same time — but no venue here should be
+   printed on a poster until the committee supplies the real allocation.
+
+   `time` is the START, and it is the only field the timeline lays out on:
+   lib/timeline.ts derives every block's vertical position from it, so editing
+   a time here moves the block. Nothing about the staircase is positioned by
+   hand. `end` is optional and display-only.
    --------------------------------------------------------------------------- */
 export const SCHEDULE_IS_PLACEHOLDER = true;
 
 export interface ScheduleRow {
+  /** Start time, 24h "HH:MM". Drives the timeline's vertical layout. */
   time: string;
+  /** End time, where a confirmed window exists. Display only. */
+  end?: string;
   slot: string;
   venue: string;
   track: string;
@@ -459,24 +470,35 @@ export const SCHEDULE: ScheduleRow[] = [
   { time: '08:30', slot: 'Registration & Kit Collection', venue: 'Main Foyer', track: 'ALL' },
   { time: '09:15', slot: 'Inauguration · Lighting of the Lamp', venue: 'Auditorium', track: 'ALL' },
   { time: '09:30', slot: 'Game-Athon — Theme Reveal', venue: 'Lab 204', track: 'NEXT-GEN' },
-  { time: '10:00', slot: 'Capture the Flag · Round 1', venue: 'Lab 201', track: 'TECHNICAL' },
+
+  /* --- confirmed windows ------------------------------------------------- */
+  { time: '10:00', end: '12:30', slot: 'Bridge Wars', venue: 'Workshop Bay', track: 'TECHNICAL' },
   { time: '10:00', slot: 'Valorant · Group Stage', venue: 'E-Sports Arena', track: 'E-SPORTS' },
-  { time: '10:30', slot: 'Bridge Wars · Build Phase', venue: 'Workshop Bay', track: 'TECHNICAL' },
-  { time: '11:00', slot: 'Tech Tunes · Prelims', venue: 'Seminar Hall A', track: 'NON-TECH' },
-  { time: '11:30', slot: 'Robo Race · Qualifying Runs', venue: 'Central Quad', track: 'ROBOTICS' },
-  { time: '12:00', slot: 'Escape the Server', venue: 'Lab 203', track: 'TECHNICAL' },
+  { time: '10:30', end: '16:30', slot: 'Robo Race', venue: 'Central Quad A', track: 'ROBOTICS' },
+  { time: '10:30', end: '16:30', slot: 'Robo Soccer', venue: 'Central Quad B', track: 'ROBOTICS' },
+  { time: '11:00', end: '14:00', slot: 'Tech Tunes', venue: 'Seminar Hall A', track: 'NON-TECH' },
+  { time: '11:00', end: '13:00', slot: 'The Parallel Protocol', venue: 'Seminar Hall B', track: 'NON-TECH' },
+  { time: '11:30', end: '12:30', slot: 'Tech Minute to Win It', venue: 'Lab 206', track: 'TECHNICAL' },
+  { time: '11:30', end: '13:00', slot: 'Capture the Flag', venue: 'Lab 201', track: 'TECHNICAL' },
+  { time: '12:00', end: '14:00', slot: 'Nexus Negotiator', venue: 'Seminar Hall C', track: 'NON-TECH' },
+  { time: '12:00', end: '14:00', slot: 'Array Pata Hai', venue: 'Lab 205', track: 'NON-TECH' },
   { time: '12:30', slot: 'Lunch Break', venue: 'Cafeteria', track: 'ALL' },
-  { time: '13:15', slot: 'Algorithm Auction', venue: 'Lab 202', track: 'TECHNICAL' },
+  { time: '13:00', end: '15:00', slot: 'Secret Seekers', venue: 'Campus-wide', track: 'NON-TECH' },
+  { time: '13:00', end: '14:30', slot: 'Escape the Server', venue: 'Lab 203', track: 'TECHNICAL' },
   { time: '13:30', slot: 'Interface Quest · Design Sprint', venue: 'Studio 1', track: 'MEDIA' },
-  { time: '14:00', slot: 'Robo Soccer · Knockouts', venue: 'Central Quad', track: 'ROBOTICS' },
-  { time: '14:00', slot: 'Secret Seekers · Hunt Begins', venue: 'Campus-wide', track: 'NON-TECH' },
-  { time: '14:30', slot: 'AI Whisperer', venue: 'Lab 205', track: 'TECHNICAL' },
+  { time: '14:30', end: '16:00', slot: 'Algorithm Auction', venue: 'Lab 202', track: 'TECHNICAL' },
+  /* ----------------------------------------------------------------------- */
+
   { time: '15:00', slot: 'Mortal Kombat · Tekken · FIFA Finals', venue: 'E-Sports Arena', track: 'E-SPORTS' },
-  { time: '15:30', slot: 'Nexus Negotiator · Final Table', venue: 'Seminar Hall B', track: 'NON-TECH' },
   { time: '16:00', slot: 'Quest to Cinema · Screening', venue: 'Auditorium', track: 'MEDIA' },
   { time: '17:00', slot: 'Game-Athon · Submissions Close', venue: 'Lab 204', track: 'NEXT-GEN' },
   { time: '17:30', slot: 'Prize Distribution & Closing', venue: 'Auditorium', track: 'ALL' },
 ];
+
+/** "10:30 – 16:30", or just the start when no end is confirmed. */
+export function scheduleRange(row: ScheduleRow, dash = '–'): string {
+  return row.end ? `${row.time} ${dash} ${row.end}` : row.time;
+}
 
 /* --- Derived event facts. One source of truth: `format` + SCHEDULE. -------- */
 
@@ -567,45 +589,266 @@ export function headlinePrizeTotal(): number | null {
 }
 
 /* ---------------------------------------------------------------------------
-   COORDINATORS
+   THE COMMITTEE
 
-   The authoritative student list, grouped by department in the order the
-   groups first occur. NO PHOTOS have been supplied for anyone, so the cards
-   render name-only — there is no avatar slot to leave empty.
+   Two tables, joined by name — NOT one hand-written list per committee.
 
-   Faculty: left out entirely until names are confirmed. Adding a single row
-   with group 'Faculty' is all that is needed to bring that block back.
+   PEOPLE is the per-person record: photo and LinkedIn live there exactly once.
+   COMMITTEE_ROSTER is membership and nothing else. Three people sit on two
+   committees each (Reetpal Kaur, Devanshu Juneja, Gauri Dhiman), so a flat
+   per-committee list would carry their photo and URL twice and let the two
+   copies drift. Here they render in both places from the single record.
+
+   `photo` and `linkedin` are both OPTIONAL. All 38 members currently have
+   both, so no fallback is visible on the live site — but the shape and the
+   markup already handle their absence (initials avatar, and the name as plain
+   text rather than a dead link), so a future roster change is a data edit and
+   not a markup rewrite.
+
+   `photo` is a filename in public/team, quoted exactly as delivered. Several
+   do not match the member's official spelling — "Sia.jpeg" for Siya Nagpal,
+   "Harkeerat.jpeg" for Harkirat Kaur, "Aashna.jpeg" for Ashna Bansal — and
+   "Siddhant .jpeg" carries an interior space. They are NOT normalised: the
+   filename is what is on disk, `name` is what a visitor reads, and fuzzy
+   matching between the two is exactly the bug this table exists to prevent.
+
+   Faculty: left out entirely until names are confirmed. Adding a group here is
+   all that is needed to bring that block back.
    --------------------------------------------------------------------------- */
-export interface Coordinator {
+export interface TeamMember {
   name: string;
-  /** Department. Doubles as the card's role — the group heading names it. */
-  group: string;
-  /** Optional — rendered as a mailto/tel chip when present. */
-  contact?: string;
+  /** Committee this listing belongs to. A person can appear in more than one. */
+  committee: string;
+  /** Filename in public/team. Absent -> initials avatar. */
+  photo?: string;
+  /** Absent -> the name renders as plain text, never as a dead link. */
+  linkedin?: string;
 }
 
-/** Written as `department: [names]` and flattened, so the source stays
-    readable and a name can never drift away from its department. */
-const COORDINATOR_GROUPS: [string, string[]][] = [
-  ['Chief Coordinator', ['Armaan Singh Sandhu', 'Konark Jetly', 'Mannat']],
-  ['Sponsorships', ['Madhav', 'Harshit', 'Aaravdeep', 'Raghav', 'Devanshu']],
-  ['Technical', ['Pulkit', 'Soumya']],
-  ['Non-Technical', ['Sia', 'Himanshi', 'Harkirat']],
-  ['Registration', ['Armaan Thakur', 'Muskaan']],
-  ['Hospitality', ['Shreya', 'Jayesh']],
-  ['Designing', ['Gauri', 'Vanika']],
-  ['Discipline Committee', ['Vinayak', 'Saksham']],
-  ['E-Sports', ['Palaksh', 'Devanshu']],
-  ['Photography', ['Gauri', 'Konark']],
-  ['Robo Club', ['Rishabh', 'Vinayak', 'Raghav Gandhi', 'Krish']],
-  ['Marketing', ['Siddhant', 'Mannat', 'Krrish']],
-  ['Game-Athon', ['Tejus', 'Aaryamann']],
-  ['Decoration', ['Reet']],
+interface PersonRecord {
+  photo?: string;
+  linkedin?: string;
+}
+
+/** One record per person, keyed by the name shown on the card. */
+const PEOPLE: Record<string, PersonRecord> = {
+  'Armaan Singh Sandhu': {
+    photo: 'Armaan President.jpeg',
+    linkedin: 'https://www.linkedin.com/in/armaan-singh-sandhu-831525326',
+  },
+  'Konark Jetly': {
+    photo: 'Konark.jpeg',
+    linkedin: 'https://www.linkedin.com/in/konark-jetly-150275143',
+  },
+  'Mannat Walia': {
+    photo: 'Mannat.jpeg',
+    linkedin: 'https://www.linkedin.com/in/mannat-walia-877899335',
+  },
+  'Madhav Prakash': {
+    photo: 'Madhav.jpeg',
+    linkedin: 'https://www.linkedin.com/in/madhav-prakash-3a593a1ab',
+  },
+  'Harshit Sharma': {
+    photo: 'Harshit.jpeg',
+    linkedin: 'https://www.linkedin.com/in/harshit-sharma-41b9b4269',
+  },
+  'Aaravdeep Gujral': {
+    photo: 'Aaravdeep Singh Gujral.jpeg',
+    linkedin: 'https://www.linkedin.com/in/aaravdeep-gujral-a2ab5b31b',
+  },
+  'Raghav Singla': {
+    photo: 'Raghav Sponsorships.jpeg',
+    linkedin: 'https://www.linkedin.com/in/raghav-singla-04764a432',
+  },
+  'Devanshu Juneja': {
+    photo: 'Devanshu.jpeg',
+    linkedin: 'https://www.linkedin.com/in/devanshujuneja',
+  },
+  'Reetpal Kaur': {
+    photo: 'Reetpal Kaur.jpeg',
+    linkedin: 'https://www.linkedin.com/in/reetpal-kaur-44097631a',
+  },
+  'Pulkit Mahajan': {
+    photo: 'Pulkit.jpeg',
+    linkedin: 'https://www.linkedin.com/in/pulkit-mahajan-a43884320',
+  },
+  'Soumya Sharma': {
+    photo: 'Soumya.jpeg',
+    linkedin: 'https://www.linkedin.com/in/soumya-sharma-3ab74b211',
+  },
+  'Siya Nagpal': {
+    photo: 'Sia.jpeg',
+    linkedin: 'https://www.linkedin.com/in/siya-nagpal-34564421b',
+  },
+  'Himanshi Farah': {
+    photo: 'Himanshi.jpeg',
+    linkedin: 'https://www.linkedin.com/in/himanshi-farah-55a652328',
+  },
+  'Harkirat Kaur': {
+    photo: 'Harkeerat.jpeg',
+    linkedin: 'https://www.linkedin.com/in/harkirat-kaur-248a40319',
+  },
+  'Gauri Dhiman': {
+    photo: 'Gauri.jpeg',
+    linkedin: 'https://www.linkedin.com/in/gauri-dhiman-6b8109342',
+  },
+  'Vanika Aggarwal': {
+    photo: 'Vanika.jpeg',
+    linkedin: 'https://www.linkedin.com/in/vanika-aggarwal-58a64b274',
+  },
+  'Palaksh Pandit': {
+    photo: 'Palaksh.jpeg',
+    linkedin: 'https://www.linkedin.com/in/palaksh-pandit-66a7773ab',
+  },
+  'Rishabh Jain': {
+    photo: 'Rishabh.jpeg',
+    linkedin: 'https://www.linkedin.com/in/rishabh-jain-b7665431a',
+  },
+  'Vinayak Goyal': {
+    photo: 'Vinayak Robo Club.jpeg',
+    linkedin: 'https://www.linkedin.com/in/vinayak-goyal-09971531a',
+  },
+  'Raghav Gandhi': {
+    photo: 'Raghav Robo club.jpeg',
+    linkedin: 'https://www.linkedin.com/in/raghav-gandhi-20070131a',
+  },
+  'Krish Rathi': {
+    photo: 'Krish robo club.jpeg',
+    linkedin: 'https://www.linkedin.com/in/krish-rathi-07665731a',
+  },
+  'Ranjot Singh': {
+    photo: 'Ranjot.jpeg',
+    linkedin: 'https://www.linkedin.com/in/ranjot-singh-8006ab31a',
+  },
+  'Tejus Midha': {
+    photo: 'Tejus Midha.jpeg',
+    linkedin: 'https://www.linkedin.com/in/tejus-midha',
+  },
+  'Aaryaman Manchanda': {
+    photo: 'Aaryaman.jpeg',
+    linkedin: 'http://www.linkedin.com/in/aaryaman-manchanda',
+  },
+  'Siddhant Rana': {
+    photo: 'Siddhant .jpeg',
+    linkedin: 'https://www.linkedin.com/in/siddhant-rana-703588361',
+  },
+  'Krrish Oberoi': {
+    photo: 'Krrish Marketing.jpeg',
+    linkedin: 'https://www.linkedin.com/in/krrish-oberoi-849b173a6',
+  },
+  'Shreya Hooda': {
+    photo: 'Shreya.jpeg',
+    linkedin: 'http://www.linkedin.com/in/shreya-hooda-9ab6163b3',
+  },
+  'Jayesh Mohan': {
+    photo: 'Jayesh.jpeg',
+    linkedin: 'https://www.linkedin.com/in/jayesh-mohan-3b6313264',
+  },
+  'Armaan Thakur': {
+    photo: 'Armaan Registrations.jpeg',
+    linkedin: 'https://www.linkedin.com/in/armaan-thakur-81a7a9297',
+  },
+  'Muskaan Mahajan': {
+    photo: 'Muskaan.jpeg',
+    linkedin: 'https://www.linkedin.com/in/muskaan-mahajan-0ab438369',
+  },
+  'Khyati Sharma': {
+    photo: 'Khyati.jpeg',
+    linkedin: 'https://www.linkedin.com/in/khyati-sharma-45a48831a',
+  },
+  'Ashna Bansal': {
+    photo: 'Aashna.jpeg',
+    linkedin: 'https://www.linkedin.com/in/ashna-bansal-a536b931a',
+  },
+  'Alvina Cs': {
+    photo: 'Alvina.jpeg',
+    linkedin: 'https://www.linkedin.com/in/alvina-cs',
+  },
+  'Avneet Kaur': {
+    photo: 'Avneet.jpeg',
+    linkedin: 'https://www.linkedin.com/in/avneet-kaur-1726ak',
+  },
+  'Saksham Thakur': {
+    photo: 'Saksham.jpeg',
+    linkedin: 'https://www.linkedin.com/in/saksham-thakur-2507752a3',
+  },
+  'Vinayak Datt': {
+    photo: 'Vinayak Discipline.jpeg',
+    linkedin: 'https://www.linkedin.com/in/vinayak-datt-081127311',
+  },
+  'Bhavyam Bhatnagar': {
+    photo: 'Bhavyam.jpeg',
+    linkedin: 'https://www.linkedin.com/in/bhavyam-bhatnagar-5601b5325',
+  },
+  'Eklavya Kapoor': {
+    photo: 'Eklavya.jpeg',
+    linkedin: 'http://www.linkedin.com/in/eklavya-kapoor',
+  },
+};
+
+/** Membership only. Committees render top to bottom in this order. */
+const COMMITTEE_ROSTER: [string, string[]][] = [
+  ['Presidents', ['Armaan Singh Sandhu', 'Konark Jetly', 'Mannat Walia']],
+  [
+    'Sponsorships',
+    [
+      'Madhav Prakash',
+      'Harshit Sharma',
+      'Aaravdeep Gujral',
+      'Raghav Singla',
+      'Devanshu Juneja',
+      'Reetpal Kaur',
+    ],
+  ],
+  ['Technical', ['Pulkit Mahajan', 'Soumya Sharma']],
+  ['Non-Technical', ['Siya Nagpal', 'Himanshi Farah', 'Harkirat Kaur']],
+  ['Designing', ['Gauri Dhiman', 'Vanika Aggarwal']],
+  ['E-Sports', ['Palaksh Pandit', 'Devanshu Juneja']],
+  ['Robo Club', ['Rishabh Jain', 'Vinayak Goyal', 'Raghav Gandhi', 'Krish Rathi', 'Ranjot Singh']],
+  ['Gameathon', ['Tejus Midha', 'Aaryaman Manchanda']],
+  ['Photography', ['Gauri Dhiman']],
+  ['Marketing', ['Siddhant Rana', 'Krrish Oberoi']],
+  ['Hospitality', ['Shreya Hooda', 'Jayesh Mohan']],
+  ['Registration', ['Armaan Thakur', 'Muskaan Mahajan']],
+  ['Decoration', ['Reetpal Kaur', 'Khyati Sharma', 'Ashna Bansal', 'Alvina Cs', 'Avneet Kaur']],
+  [
+    'Discipline Committee',
+    ['Saksham Thakur', 'Vinayak Datt', 'Bhavyam Bhatnagar', 'Eklavya Kapoor'],
+  ],
 ];
 
-export const COORDINATORS: Coordinator[] = COORDINATOR_GROUPS.flatMap(([group, names]) =>
-  names.map((name) => ({ name, group })),
-);
+export interface Committee {
+  name: string;
+  members: TeamMember[];
+}
+
+/** The join. A name with no PEOPLE record still renders — as initials and
+    unlinked text — rather than throwing or being silently dropped. */
+export const COMMITTEES: Committee[] = COMMITTEE_ROSTER.map(([name, names]) => ({
+  name,
+  members: names.map((person) => ({ name: person, committee: name, ...PEOPLE[person] })),
+}));
+
+/** Every listing, in render order. Someone on two committees appears twice. */
+export const TEAM: TeamMember[] = COMMITTEES.flatMap((c) => c.members);
+
+/** Distinct people. 38 today; three of them hold two seats. */
+export const TEAM_PEOPLE: string[] = Object.keys(PEOPLE);
+
+/** Public path for a committee photo. The image loader percent-encodes the
+    spaces; the filename on disk is never rewritten to match a name. */
+export function teamPhotoSrc(member: TeamMember): string | null {
+  return member.photo ? `/team/${member.photo}` : null;
+}
+
+/** "Armaan Singh Sandhu" -> "AS". Only used when a photo is missing. */
+export function initials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return '?';
+  const first = parts[0][0];
+  const last = parts.length > 1 ? parts[parts.length - 1][0] : '';
+  return (first + last).toUpperCase();
+}
 
 /* ---------------------------------------------------------------------------
    FAQ

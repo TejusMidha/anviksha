@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "og": "node scripts/make-og.mjs"
+    "og": "node scripts/make-og.mjs",
+    "logos": "node scripts/optimize-logos.mjs"
   },
   "dependencies": {
     "@react-three/drei": "9.114.3",

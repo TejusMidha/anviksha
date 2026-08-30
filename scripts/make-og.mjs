@@ -43,7 +43,8 @@ const TEXT = {
   subtitle: 'THE EPOCH',
   theme: 'DIGITAL VOYAGE: CHARTING THE COURSE OF INNOVATION',
   date: '12 SEPTEMBER 2026',
-  stats: '21 EVENTS · 5 TRACKS',
+  stats: '20 EVENTS · 5 TRACKS',
+  poweredBy: 'POWERED BY UNSTOP',
 };
 
 /* --- 5x7 bitmap font -------------------------------------------------------
@@ -209,6 +210,17 @@ function chip(str, x, yy, scale) {
 
 const chipW = chip(TEXT.date, PAD, y, 4);
 chip(TEXT.stats, PAD + chipW + 24, y, 4);
+
+/* Co-branding, bottom-right — the same tag the page carries under its
+   wordmark. Right-aligned so it reads as a sign-off rather than a fourth
+   item in the left-hand stack. */
+drawText(
+  TEXT.poweredBy,
+  W - PAD - textWidth(TEXT.poweredBy, 3),
+  H - 60 - GLYPH_H * 3,
+  3,
+  blend(VOID, PAPER, 0.5),
+);
 
 /* --- encode PNG ------------------------------------------------------------ */
 const CRC_TABLE = (() => {

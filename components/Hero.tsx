@@ -22,6 +22,7 @@ import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { FEST, ALL_EVENTS, ERAS } from '@/lib/content';
 import Countdown from './Countdown';
+import { PoweredByUnstop } from './Brand';
 import { CalendarIcon, ExternalIcon, PinIcon } from './Icons';
 
 // Supporting elements only. Capped so the whole sequence is done well inside 1s.
@@ -74,7 +75,14 @@ export default function Hero() {
           <span className="brochure-title brochure-title-soft mt-3 block">THE EPOCH</span>
         </h1>
 
-        <p className="mx-auto mt-7 max-w-2xl text-balance text-lg font-medium leading-snug text-white/90 sm:text-xl">
+        {/* Co-branding, directly under the wordmark it tags. Part of the
+            critical block on purpose: it is brand, not furniture, so it must
+            not fade in after the name it belongs to. */}
+        <div className="mt-5 flex justify-center">
+          <PoweredByUnstop />
+        </div>
+
+        <p className="mx-auto mt-6 max-w-2xl text-balance text-lg font-medium leading-snug text-white/90 sm:text-xl">
           {FEST.theme}
         </p>
         <p className="mx-auto mt-2.5 max-w-xl text-balance text-sm leading-relaxed text-white/55">

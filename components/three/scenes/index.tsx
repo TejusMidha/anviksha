@@ -5,7 +5,6 @@ import type { EraId, SceneKey } from '@/lib/content';
 import type { SceneProps } from './shared';
 
 import {
-  AIWhisperer,
   AlgorithmAuction,
   BridgeWars,
   CaptureTheFlag,
@@ -37,7 +36,6 @@ export const SCENES: Record<SceneKey, SceneEntry> = {
   escapeTheServer: { Component: EscapeTheServer, era: 1, dist: 4.6 },
   bridgeWars: { Component: BridgeWars, era: 1, dist: 4.4, y: -0.05 },
   algorithmAuction: { Component: AlgorithmAuction, era: 1, dist: 4.6, y: -0.15 },
-  aiWhisperer: { Component: AIWhisperer, era: 1, dist: 4.6 },
   techMinute: { Component: TechMinute, era: 1, dist: 5.0 },
 
   techTunes: { Component: TechTunes, era: 3, dist: 5.2 },

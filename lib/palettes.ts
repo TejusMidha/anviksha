@@ -30,7 +30,6 @@ export const PALETTES: Record<SceneKey, EventPalette> = {
   escapeTheServer: { base: '#5b3a86', accent: '#e39bd8', hot: '#ffb347', rim: '#ff7a5c' },
   bridgeWars: { base: '#ff2e7e', accent: '#4ce0ff', hot: '#ffd76b', rim: '#ff2e7e' },
   algorithmAuction: { base: '#1e2168', accent: '#4ce0ff', hot: '#ff5ce0', rim: '#6a5cff' },
-  aiWhisperer: { base: '#2bd97a', accent: '#4ce0ff', hot: '#a8ffd8', rim: '#39ff6a' },
   techMinute: { base: '#8b2fbf', accent: '#ff4fa8', hot: '#4ce0ff', rim: '#c73fd6' },
 
   /* ── NON-TECHNICAL — retro console warmth over violet ──────────────────── */

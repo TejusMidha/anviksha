@@ -12,6 +12,7 @@
 
 import { CONTACT, FEST, formatPhone } from '@/lib/content';
 import { FooterSocials } from './Socials';
+import { PoweredByUnstop } from './Brand';
 import { ExternalIcon, PhoneIcon } from './Icons';
 
 export default function Footer() {
@@ -28,7 +29,11 @@ export default function Footer() {
             </span>
           </div>
 
-          <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/55">{FEST.theme}</p>
+          <div className="mt-4">
+            <PoweredByUnstop />
+          </div>
+
+          <p className="mt-5 max-w-sm text-sm leading-relaxed text-white/55">{FEST.theme}</p>
           <p className="mt-2 max-w-sm text-sm leading-relaxed text-white/40">
             {FEST.themeSubtitle}
           </p>
@@ -107,8 +112,8 @@ export default function Footer() {
 
       <div className="border-t border-[color:var(--chrome-line-soft)] px-4 py-5 sm:px-6">
         <p className="mx-auto max-w-7xl font-mono text-[10px] uppercase tracking-[0.2em] text-white/30">
-          © {new Date().getFullYear()} ANVIKSHA · STME NMIMS Chandigarh · built with procedural
-          geometry, zero downloaded assets
+          © {new Date().getFullYear()} ANVIKSHA · STME NMIMS Chandigarh · Powered by{' '}
+          {FEST.partner}
         </p>
       </div>
     </footer>

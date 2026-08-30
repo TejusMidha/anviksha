@@ -75,7 +75,7 @@ components/
       nextgen.tsx     era 5 — Game-Athon particle field
       index.tsx       SceneKey -> component registry (+ camera framing)
 lib/
-  content.ts          ALL copy: fest info, eras, events, schedule, coordinators
+  content.ts          ALL copy: fest info, eras, events, schedule, committee
   palettes.ts         per-event colour, read by BOTH the 3D objects and the
                       timeline callouts — one source of truth for event colour
   timeline.ts         staircase layout maths (pure, no React)
@@ -146,7 +146,7 @@ Type: **Press Start 2P** (hero + era labels), **Space Grotesk** (body), **JetBra
 
 ### Per-event colour
 
-`lib/palettes.ts` gives each of the 21 events its own `base / accent / hot / rim`, taken from
+`lib/palettes.ts` gives each of the 20 events its own `base / accent / hot / rim`, taken from
 that event's page in the brochure. Both consumers read it:
 
 - the 3D object **and its lighting rig** (`Rig` is keyed off the event's palette, not its era)
@@ -225,7 +225,10 @@ Bandai Namco sprites. None of that is reproduced. The character ("the Voyager") 
    `wireframe` flag at runtime forces a shader recompile and a visible hitch mid-scroll. Two
    instanced meshes sharing identical transforms cross-fade instead — same read, no stalls.
 4. **No environment maps / HDRIs.** drei's `<Environment preset>` fetches from a CDN, which would
-   break the "no external assets" rule. Lighting is 2–3 analytic lights per era rig.
+   break the "nothing fetched from a third party" rule. Lighting is 2–3 analytic lights per era
+   rig. (The site does now ship local images — the three brand logos in `public/logos` and the
+   committee photos in `public/team` — but every one is served from this origin. Nothing is
+   fetched from a CDN at runtime.)
 5. **No drei `<Text>`** — it fetches a font file. The "1010" digits in Algorithm Auction are
    boxes and tori.
 6. **Value noise, not simplex**, in the hero vertex shader — a few ALU ops instead of dozens, and

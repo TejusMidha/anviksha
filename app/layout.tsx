@@ -29,7 +29,16 @@ const mono = JetBrains_Mono({
    page: fest first, theme second, the gaming eras only as a subtitle to the
    theme. "Evolution of gaming" is never a title or a standalone theme line. */
 const TITLE = `${FEST.name} — ${FEST.subtitle} | ${FEST.venue}`;
-const DESCRIPTION = `${FEST.theme}. ${FEST.themeSubtitle} ${FEST.date} at ${FEST.venue}.`;
+const DESCRIPTION = `${FEST.theme}. ${FEST.themeSubtitle} ${FEST.date} at ${FEST.venue}. Powered by ${FEST.partner}.`;
+
+/* The co-branding tag, as it appears next to the wordmark everywhere on the
+   page. Appended to the SHARE-CARD titles (OpenGraph/Twitter) and every
+   description, but deliberately NOT to `TITLE`: the document title is already
+   68 characters and a search result truncates around 60, so adding it there
+   would push the venue — the more useful half — out of the visible string
+   instead of adding anything. The share cards have no such limit, and the
+   generated OG image carries the tag as artwork (scripts/make-og.mjs). */
+const POWERED_BY = `Powered by ${FEST.partner}`;
 
 /* The deployed origin. Link-preview cards (app/opengraph-image.tsx) must be
    advertised as ABSOLUTE URLs or WhatsApp, LinkedIn and most mail clients
@@ -59,10 +68,11 @@ export const metadata: Metadata = {
     'hackathon',
     'e-sports',
     'robotics',
+    'Unstop',
   ],
   openGraph: {
-    title: `${FEST.name} — ${FEST.subtitle}`,
-    description: `${FEST.theme} · ${FEST.date} · ${FEST.venue}`,
+    title: `${FEST.name} — ${FEST.subtitle} · ${POWERED_BY}`,
+    description: `${FEST.theme} · ${FEST.date} · ${FEST.venue} · ${POWERED_BY}`,
     type: 'website',
     siteName: FEST.name,
     locale: 'en_IN',
@@ -70,8 +80,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${FEST.name} — ${FEST.subtitle}`,
-    description: `${FEST.theme} · ${FEST.date} · ${FEST.venue}`,
+    title: `${FEST.name} — ${FEST.subtitle} · ${POWERED_BY}`,
+    description: `${FEST.theme} · ${FEST.date} · ${FEST.venue} · ${POWERED_BY}`,
   },
   robots: { index: true, follow: true },
 };

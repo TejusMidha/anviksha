@@ -15,7 +15,7 @@
  */
 
 import { useState } from 'react';
-import { FEST, SCHEDULE, SCHEDULE_IS_PLACEHOLDER } from '@/lib/content';
+import { FEST, SCHEDULE, SCHEDULE_IS_PLACEHOLDER, scheduleRange } from '@/lib/content';
 import EraBackdrop from './era/EraBackdrop';
 import TimelineTrack from './timeline/TimelineTrack';
 
@@ -109,7 +109,9 @@ export default function Schedule() {
                   key={`${row.time}-${row.slot}`}
                   className="arcade-cut border-b border-[color:var(--chrome-line-soft)] hover:bg-phosphor/[0.08]"
                 >
-                  <td className="whitespace-nowrap px-4 py-3 text-phosphor">{row.time}</td>
+                  <td className="whitespace-nowrap px-4 py-3 text-phosphor">
+                    {scheduleRange(row)}
+                  </td>
                   <td className="px-4 py-3 text-white/85">
                     <span className="mr-2 text-white/25">{String(i + 1).padStart(2, '0')}</span>
                     {row.slot}
@@ -140,7 +142,8 @@ export default function Schedule() {
 
       {SCHEDULE_IS_PLACEHOLDER && view === 'table' && (
         <p className="relative mt-4 font-mono text-[10px] uppercase tracking-[0.16em] text-amber/70">
-          ⚠ indicative timings — final run-of-show to be confirmed
+          ⚠ event windows are confirmed · ceremony, break and e-sports slots are
+          indicative and to be confirmed
         </p>
       )}
     </section>

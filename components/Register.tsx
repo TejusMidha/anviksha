@@ -1,6 +1,7 @@
 import { FEST } from '@/lib/content';
 import EraBackdrop from './era/EraBackdrop';
 import { FooterSocials } from './Socials';
+import { PoweredByUnstop } from './Brand';
 import { CalendarIcon, ExternalIcon, PinIcon } from './Icons';
 
 export default function Register() {
@@ -64,7 +65,13 @@ export default function Register() {
             </a>
           </div>
 
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-3 font-mono text-[11px] uppercase tracking-[0.16em] text-white/50">
+          {/* The copy above already names Unstop as the registration route;
+              this is the same fact as a mark, under the button it applies to. */}
+          <div className="mt-7 flex justify-center">
+            <PoweredByUnstop />
+          </div>
+
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-3 font-mono text-[11px] uppercase tracking-[0.16em] text-white/50">
             <span className="era-chip inline-flex items-center gap-2 px-3 py-2">
               <CalendarIcon size={14} />
               {FEST.date}

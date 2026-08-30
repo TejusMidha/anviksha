@@ -21,7 +21,7 @@
 
 import { useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
-import { SCHEDULE, SCHEDULE_IS_PLACEHOLDER } from '@/lib/content';
+import { SCHEDULE, SCHEDULE_IS_PLACEHOLDER, scheduleRange } from '@/lib/content';
 import { buildTimeline, RUN_LENGTH } from '@/lib/timeline';
 import { useDeviceTier, usePrefersReducedMotion } from '@/lib/hooks';
 import { BitMiteSprite, VoyagerSprite } from './sprites';
@@ -32,8 +32,8 @@ import { BitMiteSprite, VoyagerSprite } from './sprites';
    lib/timeline.ts relaxes colliding rows to MIN_GAP (0.035 of the track), so
    the smallest gap in pixels is STEP_PX * rows * 0.035. A measured callout is
    ~75px tall, so the mobile pitch has to stay high enough that two 10:00 rows
-   do not overlap their callouts: 124 * 20 * 0.035 = 87px of clearance. 108
-   gave 76px, which touched. */
+   do not overlap their callouts: at 22 rows that is 124 * 22 * 0.035 = 95px of
+   clearance. 108 gave 76px, which touched. */
 const STEP_PX = 132;
 const STEP_PX_MOBILE = 124;
 
@@ -374,7 +374,9 @@ export default function TimelineTrack() {
                 {/* HUD callout — thick-border pixel box in the row's own colour */}
                 <div className={`tl-hud ${s.x > 0.5 ? 'tl-hud-left' : 'tl-hud-right'}`}>
                   <div className="tl-hud-bar">
-                    <span className="tl-hud-time">{s.row.time}</span>
+                    {/* ASCII hyphen, not an en dash: this line is set in
+                        Press Start 2P, whose pixel face has no en dash. */}
+                    <span className="tl-hud-time">{scheduleRange(s.row, '-')}</span>
                     <span className="tl-hud-track">{s.row.track}</span>
                   </div>
                   <div className="tl-hud-body">

@@ -11,6 +11,28 @@
 import { ALL_EVENTS, ERAS, FEST } from '@/lib/content';
 import EraBackdrop from './era/EraBackdrop';
 
+/**
+ * Splits a stat value into the lines the box renders.
+ *
+ * WHY THIS EXISTS: the stat values are set in Press Start 2P, whose glyphs are
+ * a full em wide, and at `lg` the five boxes are ~115px each inside the left
+ * column. "12.09.2026" is ten characters — about 110px of type before padding,
+ * so it ran straight through the right-hand border. The other four values were
+ * never at risk because each has a natural break opportunity the browser could
+ * take on its own: a space in "STME NMIMS", a hyphen in "Single-day", and the
+ * two numerals are two characters wide.
+ *
+ * A date has NO break opportunity — "12.09.2026" is one unbreakable word to the
+ * line-breaker — so it is split here, after the month, into exactly the same
+ * two-line shape the venue and format boxes already fall into. The value is not
+ * changed or abbreviated; only where it wraps is decided.
+ */
+function statLines(value: string): string[] {
+  const date = /^(\d{2}\.\d{2}\.)(\d{4})$/.exec(value);
+  if (date) return [date[1], date[2]];
+  return [value];
+}
+
 export default function About() {
   const stats = [
     { k: 'Date', v: FEST.dateShort },
@@ -55,11 +77,22 @@ export default function About() {
 
           <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
             {stats.map((s) => (
-              <div key={s.k} className="era-surface px-4 py-4">
+              <div key={s.k} className="era-surface overflow-hidden px-3 py-4 sm:px-4">
                 <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/40">
                   {s.k}
                 </div>
-                <div className="era-text mt-2 font-pixel text-[11px] leading-none">{s.v}</div>
+                {/* `leading-[1.5]` so the values that take two lines do not
+                    collide (leading-none had them touching), and
+                    `overflow-wrap-anywhere` as the backstop for any future
+                    value long enough to beat both the explicit split and the
+                    browser's own break opportunities. */}
+                <div className="era-text mt-2 font-pixel text-[10px] leading-[1.5] [overflow-wrap:anywhere] sm:text-[11px]">
+                  {statLines(s.v).map((line) => (
+                    <span key={line} className="block">
+                      {line}
+                    </span>
+                  ))}
+                </div>
               </div>
             ))}
           </div>
